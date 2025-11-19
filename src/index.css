@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* small app defaults */
+html,body,#root { height: 100%; }
+body { @apply bg-slate-50 text-slate-900; }
+
+/* Dark mode global background */
+body.dark {
+  background-color: #000000;
+  color: #e4e4e7;
+}
+
+/* Custom Scrollbar for Webkit Browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.4);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #27272a;
+  border: 2px solid #000000;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #3f3f46;
+}
