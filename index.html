@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,13 +6,122 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>E-commerce CRM</title>
-  </head>
-
-  <body>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reactflow@11.10.1/dist/style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              dark: {
+                bg: '#000000',
+                surface: '#18181b',
+                surfaceHover: '#27272a',
+                border: '#27272a',
+                text: '#e4e4e7',
+                muted: '#a1a1aa',
+              },
+              green: {
+                DEFAULT: '#22C55E',
+                '50': '#F0FDF4',
+                '100': '#DCFCE7',
+                '200': '#BBF7D0',
+                '300': '#86EFAC',
+                '400': '#4ADE80',
+                '500': '#22C55E',
+                '600': '#16A34A',
+                '700': '#15803D',
+                '800': '#166534',
+                '900': '#14532D',
+              },
+              blue: {
+                DEFAULT: '#3B82F6',
+                '500': '#3B82F6'
+              },
+            },
+            animation: {
+                "fade-in": "fadeIn 0.3s ease-out forwards",
+                "scale-in": "scaleIn 0.2s ease-out forwards",
+                "slide-up": "slideUp 0.3s ease-out forwards",
+            },
+            keyframes: {
+                fadeIn: {
+                    "0%": { opacity: "0" },
+                    "100%": { opacity: "1" },
+                },
+                scaleIn: {
+                    "0%": { transform: "scale(0.95)", opacity: "0" },
+                    "100%": { transform: "scale(1)", opacity: "1" },
+                },
+                slideUp: {
+                    "0%": { transform: "translateY(10px)", opacity: "0" },
+                    "100%": { transform: "translateY(0)", opacity: "1" },
+                }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: rgba(156, 163, 175, 0.3);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(156, 163, 175, 0.5);
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background-color: #27272a;
+      }
+      
+      .dark body {
+        background-color: #000000;
+        color: #e4e4e7;
+      }
+      
+      /* Dropdown & Modal Animation Defaults */
+      @keyframes dropdown-enter {
+        0% { opacity: 0; transform: scale(0.98) translateY(-5px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      .animate-dropdown {
+        animation: dropdown-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+    "react-redux": "https://aistudiocdn.com/react-redux@^9.2.0",
+    "@reduxjs/toolkit": "https://aistudiocdn.com/@reduxjs/toolkit@^2.9.2",
+    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+    "class-variance-authority": "https://aistudiocdn.com/class-variance-authority@^0.7.1",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "framer-motion": "https://esm.sh/framer-motion@11.0.24?external=react,react-dom",
+    "reactflow": "https://esm.sh/reactflow@11.10.1?external=react,react-dom",
+    "uuid": "https://esm.sh/uuid@9.0.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-50 dark:bg-dark-bg">
     <div id="root"></div>
     <div id="portal-root"></div>
-
-    <!-- Vite loads your React app -->
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

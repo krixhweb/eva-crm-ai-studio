@@ -1,0 +1,131 @@
+
+import type { Product, Supplier } from '../types';
+
+export const productLocations = [
+    { id: 'loc_1', name: 'Warehouse A' },
+    { id: 'loc_2', name: 'Warehouse B' },
+    { id: 'loc_3', name: 'Storefront' },
+];
+
+export const mockSuppliers: Supplier[] = [
+    { id: 'sup_1', name: 'Furniture Co.' },
+    { id: 'sup_2', name: 'Decor Direct' },
+    { id: 'sup_3', name: 'Office Essentials Ltd.' },
+];
+
+export const mockProducts: Product[] = [
+    {
+        id: "prod_1",
+        name: "Velvet Chesterfield Sofa",
+        sku: "FURN-SOFA-001",
+        category: "Sofa",
+        tags: ["living room", "velvet", "classic"],
+        description: "A luxurious 3-seater sofa with deep button tufting and plush velvet upholstery.",
+        images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=200"],
+        costPrice: 28000,
+        sellingPrice: 49999,
+        status: 'Active',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 8 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 4 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 2 },
+        ],
+        stock: 14,
+        lastUpdated: '2024-07-25',
+    },
+    {
+        id: "prod_2",
+        name: "Ergonomic Office Chair",
+        sku: "FURN-CHAIR-001",
+        category: "Chair",
+        tags: ["office", "ergonomic", "wfh"],
+        description: "High-back ergonomic chair with adjustable lumbar support and breathable mesh.",
+        images: ["https://images.unsplash.com/photo-1580480055273-228ff53825b3?w=200"],
+        costPrice: 8500,
+        sellingPrice: 14999,
+        status: 'Active',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 25 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 10 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 5 },
+        ],
+        stock: 40,
+        lastUpdated: '2024-07-20',
+    },
+    {
+        id: "prod_3",
+        name: "Solid Oak Dining Table",
+        sku: "FURN-TABLE-001",
+        category: "Table",
+        tags: ["dining", "wood", "minimalist"],
+        description: "A minimalist 6-seater dining table crafted from solid oak wood.",
+        images: ["https://images.unsplash.com/photo-1604147341147-3d361141c2a4?w=200"],
+        costPrice: 17000,
+        sellingPrice: 29999,
+        status: 'Active',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 5 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 3 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 1 },
+        ],
+        stock: 9, // Low stock
+        lastUpdated: '2024-07-15',
+    },
+    {
+        id: "prod_4",
+        name: "Upholstered Queen Bed",
+        sku: "FURN-BED-001",
+        category: "Bed",
+        tags: ["bedroom", "modern", "sleep"],
+        description: "Modern queen-sized bed frame with a stylish grey upholstered headboard.",
+        images: ["https://images.unsplash.com/photo-1595526114035-0d45ed16433d?w=200"],
+        costPrice: 13500,
+        sellingPrice: 22500,
+        status: 'Inactive',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 10 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 8 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 3 },
+        ],
+        stock: 21,
+        lastUpdated: '2024-06-30',
+    },
+    {
+        id: "prod_5",
+        name: "Industrial Bookshelf",
+        sku: "FURN-SHELF-001",
+        category: "Shelf",
+        tags: ["storage", "industrial", "metal"],
+        description: "A 5-tier bookshelf with a sturdy metal frame and rustic wood shelves.",
+        images: ["https://images.unsplash.com/photo-1594291416-24b3b55234d4?w=200"],
+        costPrice: 6000,
+        sellingPrice: 11999,
+        status: 'Active',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 0 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 0 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 0 },
+        ],
+        stock: 0, // Out of stock
+        lastUpdated: '2024-05-15',
+    },
+    {
+        id: "prod_6",
+        name: "Mid-Century Modern Armchair",
+        sku: "FURN-CHAIR-002",
+        category: "Chair",
+        tags: ["living room", "accent", "retro"],
+        description: "An iconic armchair design with a solid wood frame and comfortable fabric seat.",
+        images: ["https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=200"],
+        costPrice: 9000,
+        sellingPrice: 17999,
+        status: 'Active',
+        locations: [
+            { locationId: 'loc_1', locationName: 'Warehouse A', stock: 15 },
+            { locationId: 'loc_2', locationName: 'Warehouse B', stock: 7 },
+            { locationId: 'loc_3', locationName: 'Storefront', stock: 4 },
+        ],
+        stock: 26,
+        lastUpdated: '2024-07-28',
+    },
+];
