@@ -14,7 +14,7 @@ import { mockCustomers } from '../../../../data/mockData';
 import { mockProducts } from '../../../../data/inventoryMockData';
 import type { Customer, Product, SalesOrder } from '../../../../types';
 import { CustomerAutocomplete } from './CustomerAutocomplete';
-import { useToast } from '../../../../hooks/use-toast';
+import { useGlassyToasts } from '../../../../components/ui/GlassyToastProvider';
 
 // --- TYPES ---
 
@@ -56,7 +56,7 @@ interface CreateSalesOrderProps {
 // --- MAIN COMPONENT ---
 
 export default function CreateSalesOrder({ onClose, onSave, initialData }: CreateSalesOrderProps) {
-  const { toast } = useToast();
+  const { push } = useGlassyToasts();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- STATE: Customer ---
@@ -258,7 +258,10 @@ export default function CreateSalesOrder({ onClose, onSave, initialData }: Creat
   };
 
   const handleSave = async (mode: 'draft' | 'full') => {
-    if (!validate(mode)) return;
+    if (!validate(mode)) {
+        push({ title: "Validation Error", description: "Please check required fields.", variant: "error" });
+        return;
+    }
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 600));
     const newOrder: SalesOrder = {
@@ -272,7 +275,7 @@ export default function CreateSalesOrder({ onClose, onSave, initialData }: Creat
       status: mode === 'draft' ? 'Draft' : (orderInfo.status as any),
     };
     if (onSave) onSave(newOrder);
-    toast({ title: mode === 'draft' ? "Draft Saved" : "Order Created", description: mode === 'draft' ? "Sales order saved as draft." : "Sales order has been successfully created." });
+    push({ title: mode === 'draft' ? "Draft Saved" : "Order Created", description: mode === 'draft' ? "Sales order saved as draft." : "Sales order has been successfully created.", variant: "success" });
     setIsSubmitting(false);
     if (onClose) onClose();
   };
@@ -535,45 +538,4 @@ export default function CreateSalesOrder({ onClose, onSave, initialData }: Creat
                         <div className="border-t border-gray-200 dark:border-zinc-700 pt-3 mt-2">
                             <div className="flex justify-between items-end">
                                 <span className="text-base font-bold text-gray-900 dark:text-gray-100">Grand Total</span>
-                                <span className="text-xl font-extrabold text-green-600">{formatCurrency(totals.grandTotal)}</span>
-                            </div>
-                        </div>
-                    </CardContent>
-                 </Card>
-            </div>
-        </div>
-
-      </div>
-
-      {/* --- 3. FIXED FOOTER --- */}
-      <div className="px-8 py-6 border-t border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex justify-end gap-3 shrink-0 z-30">
-        <Button 
-            variant="ghost" 
-            onClick={onClose} 
-            className="hover:bg-gray-100 text-gray-600"
-            disabled={isSubmitting}
-        >
-            Cancel
-        </Button>
-        <Button 
-            variant="outline" 
-            onClick={() => handleSave('draft')} 
-            className="border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-            disabled={isSubmitting}
-        >
-            {isSubmitting ? <Icon name="refreshCw" className="animate-spin w-4 h-4 mr-2" /> : null}
-            Save as Draft
-        </Button>
-        <Button 
-            onClick={() => handleSave('full')} 
-            className="bg-green-600 hover:bg-green-700 text-white shadow-sm transition-all disabled:opacity-70"
-            disabled={isSubmitting}
-        >
-            {isSubmitting ? <Icon name="refreshCw" className="animate-spin w-4 h-4 mr-2" /> : <Icon name="check" className="w-4 h-4 mr-2" />}
-            Save Order
-        </Button>
-      </div>
-
-    </div>
-  );
-}
+                                <span className="text-xl font-extrab

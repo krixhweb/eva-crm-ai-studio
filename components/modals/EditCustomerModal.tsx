@@ -42,12 +42,12 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({ customer, onSave,
 
   return (
     <Drawer open={true} onOpenChange={onClose}>
-      <DrawerContent className="max-w-md">
-        <DrawerHeader>
+      <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+        <DrawerHeader className="border-b px-6 py-4">
           <DrawerTitle>Edit Customer</DrawerTitle>
         </DrawerHeader>
         
-        <form id="edit-customer-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form id="edit-customer-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
           <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
@@ -77,7 +77,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({ customer, onSave,
           </div>
         </form>
 
-        <DrawerFooter className="flex-row justify-end gap-2">
+        <DrawerFooter className="border-t px-6 py-4 flex-row justify-end gap-2 bg-white dark:bg-zinc-900">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button type="submit" form="edit-customer-form">Save Changes</Button>
         </DrawerFooter>

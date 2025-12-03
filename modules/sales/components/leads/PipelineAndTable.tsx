@@ -20,14 +20,15 @@ import {
 } from "../../../../components/ui/Table";
 import { motion, AnimatePresence } from "framer-motion";
 import { slideUp } from "../../../../lib/motion";
-import { useKWinWobble, getColumnFromPoint } from "../../../../lib/kanbanAnimations";
+import { useKanbanCardAnimation } from "../../../../lib/kanbanAnimations";
+import { getColumnFromPoint, getIndexFromPoint } from "../../../../lib/kanban-math";
 import type { Deal } from "../../../../types";
 
 type Props = {
   deals: Deal[];
   stages: string[];
   view: "kanban" | "table";
-  onMoveDeal: (dealId: string, newStage: string) => void;
+  onMoveDeal: (dealId: string, newStage: string, newIndex?: number) => void;
   onMarkLost: (dealId: string, reason?: string) => void;
   onRequestSort: (key: keyof Deal) => void;
   sortConfig?: { key: keyof Deal; direction: "asc" | "desc" } | null;
@@ -53,56 +54,47 @@ const getPriorityStyles = (priority: string) => {
 
 const DealCard: React.FC<{
   deal: Deal;
-  stages: string[];
-  onMoveDeal: (id: string, stage: string) => void;
+  onMoveDeal: (id: string, stage: string, index: number) => void;
   onMarkLost: (id: string) => void;
 }> = ({
   deal,
-  stages,
   onMoveDeal,
   onMarkLost,
 }) => {
   const {
-    x,
-    y,
-    skewX,
-    skewY,
-    rotate,
-    scale,
-    zIndex,
-    boxShadow,
+    style,
     onDragStart,
-    onDropBounce,
-  } = useKWinWobble();
+    onDragEnd: onAnimationDragEnd,
+  } = useKanbanCardAnimation();
 
   return (
     <motion.div
+      layout
+      layoutId={deal.id}
+      data-kanban-card={deal.id}
+      style={style}
+      drag
+      dragElastic={0.12}
+      dragMomentum={false}
+      dragSnapToOrigin
+      onDragStart={onDragStart}
       {...({
-        layout: "position",
-        layoutId: deal.id,
-        style: {
-          x,
-          y,
-          rotate,
-          skewX,
-          skewY,
-          scale,
-          zIndex,
-          boxShadow,
-        },
-        drag: true,
-        dragElastic: 0.12,
-        dragMomentum: false,
-        onDragStart: onDragStart,
         onDragEnd: (event: any, info: any) => {
-          onDropBounce();
-          const dropStage = getColumnFromPoint(info.point.x, info.point.y, stages);
-          if (dropStage && dropStage !== deal.stage) {
-            onMoveDeal(deal.id, dropStage);
-          }
+            onAnimationDragEnd();
+            const dropStageId = getColumnFromPoint(info.point.x, info.point.y);
+            
+            if (dropStageId) {
+                const stageColumnEl = document.querySelector(`[data-kanban-stage="${dropStageId}"]`);
+                
+                if (stageColumnEl) {
+                    const newIndex = getIndexFromPoint(info.point.y, stageColumnEl, deal.id);
+                    onMoveDeal(deal.id, dropStageId, newIndex);
+                }
+            }
         }
       } as any)}
-      className="w-full bg-white dark:bg-gray-700 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 flex flex-col gap-2 group touch-none select-none cursor-grab active:cursor-grabbing"
+      // Removed static 'shadow-sm' class as it is now handled by 'style.boxShadow' from the hook
+      className="w-full bg-white dark:bg-gray-700 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col gap-2 group touch-none select-none cursor-grab active:cursor-grabbing relative z-0 hover:z-10"
     >
       {/* Top Row */}
       <div className="flex justify-between items-start">
@@ -220,16 +212,14 @@ const PipelineAndTable: React.FC<Props> = ({
               {/* Drop zone */}
               <div
                 data-kanban-column
-                data-stage-id={s}
-                data-stage={s}
-                className="flex flex-col gap-4 flex-1 overflow-y-auto min-h-[300px] p-2 w-full"
+                data-kanban-stage={s}
+                className="flex flex-col gap-4 flex-1 min-h-[300px] p-2 w-full overflow-visible"
               >
                 <AnimatePresence initial={false} mode="popLayout">
                   {byStage[s]?.map((d) => (
                     <DealCard
                       key={d.id}
                       deal={d}
-                      stages={stages}
                       onMoveDeal={onMoveDeal}
                       onMarkLost={onMarkLost}
                     />
@@ -239,8 +229,8 @@ const PipelineAndTable: React.FC<Props> = ({
                 {(!byStage[s] || byStage[s].length === 0) && (
                   <motion.div
                     {...({
-                      initial: { opacity: 0 },
-                      animate: { opacity: 0.5 }
+                        initial: { opacity: 0 },
+                        animate: { opacity: 0.5 }
                     } as any)}
                     className="text-center text-xs text-gray-400 py-8 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg"
                   >

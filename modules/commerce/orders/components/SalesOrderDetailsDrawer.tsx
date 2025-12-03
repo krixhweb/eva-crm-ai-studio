@@ -27,46 +27,55 @@ interface SalesOrderDetailsDrawerProps {
 const getMockOrderDetails = (order: SalesOrder | null) => {
     if (!order) return null;
     
+    // If real items exist, use them
+    if (order.items && order.items.length > 0) {
+        return {
+            ...order,
+            items: order.items
+        };
+    }
+
     const safeAmount = order.totalAmount || 0;
     const safeCount = order.itemCount || 1;
 
     return {
         ...order,
-        shippingAddress: {
-            street: "123 Business Park, Sector 62",
-            city: "Noida",
-            state: "Uttar Pradesh",
-            zip: "201301",
-            country: "India"
-        },
-        billingAddress: {
-            street: "45 Corporate Heights",
-            city: "Mumbai",
-            state: "Maharashtra",
-            zip: "400051",
-            country: "India"
-        },
         items: [
             { id: 1, name: "Ergonomic Office Chair", sku: "FURN-001", quantity: Math.ceil(safeCount * 0.3) || 1, price: safeAmount * 0.3, total: safeAmount * 0.3 },
             { id: 2, name: "Wooden Conference Table", sku: "FURN-002", quantity: Math.ceil(safeCount * 0.7) || 1, price: safeAmount * 0.7, total: safeAmount * 0.7 },
-        ],
-        timeline: [
-            { date: order.orderDate, status: "Order Placed", description: "Order received successfully" },
-            { date: order.orderDate, status: "Payment Confirmed", description: "Payment verified via Credit Card" },
-            { date: "Expected: Tomorrow", status: "Processing", description: "Order is being packed" },
         ]
     };
+};
+
+// Helper for static address if missing
+const getAddress = (addr: any, fallback: any) => {
+    if (addr && addr.street) return addr;
+    return fallback;
 };
 
 export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = ({ order, open, onClose }) => {
     if (!order) return null;
 
     const details = getMockOrderDetails(order);
+    const billing = getAddress(order.billingAddress, {
+        street: "45 Corporate Heights",
+        city: "Mumbai",
+        state: "Maharashtra",
+        zip: "400051",
+        country: "India"
+    });
+    const shipping = getAddress(order.shippingAddress, {
+         street: "123 Business Park, Sector 62",
+         city: "Noida",
+         state: "Uttar Pradesh",
+         zip: "201301",
+         country: "India"
+    });
 
     return (
         <Drawer open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-            <DrawerContent className="w-full md:w-[800px]" resizable>
-                <DrawerHeader className="border-b dark:border-gray-800 pb-4">
+            <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+                <DrawerHeader className="border-b px-6 py-4 bg-white dark:bg-zinc-900">
                     <div className="flex items-start justify-between">
                         <div>
                             <div className="flex items-center gap-3">
@@ -88,7 +97,7 @@ export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = (
                     </div>
                 </DrawerHeader>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
                     
                     {/* Timeline / Status Bar */}
                     <div className="flex items-center justify-between px-4 py-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-700">
@@ -139,7 +148,7 @@ export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = (
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {details?.items.map((item) => (
+                                    {details?.items.map((item: any) => (
                                         <TableRow key={item.id} className="border-b last:border-0 hover:bg-transparent">
                                             <TableCell>
                                                 <div>
@@ -166,9 +175,9 @@ export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = (
                             <CardContent>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">{order.customerName}</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {details?.billingAddress.street}<br />
-                                    {details?.billingAddress.city}, {details?.billingAddress.state} {details?.billingAddress.zip}<br />
-                                    {details?.billingAddress.country}
+                                    {billing.street}<br />
+                                    {billing.city}, {billing.state} {billing.zip || billing.postalCode}<br />
+                                    {billing.country}
                                 </p>
                             </CardContent>
                         </Card>
@@ -179,9 +188,9 @@ export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = (
                             <CardContent>
                                 <p className="font-medium text-gray-900 dark:text-gray-100">{order.customerName}</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {details?.shippingAddress.street}<br />
-                                    {details?.shippingAddress.city}, {details?.shippingAddress.state} {details?.shippingAddress.zip}<br />
-                                    {details?.shippingAddress.country}
+                                    {shipping.street}<br />
+                                    {shipping.city}, {shipping.state} {shipping.zip || shipping.postalCode}<br />
+                                    {shipping.country}
                                 </p>
                             </CardContent>
                         </Card>
@@ -212,11 +221,13 @@ export const SalesOrderDetailsDrawer: React.FC<SalesOrderDetailsDrawerProps> = (
 
                 </div>
 
-                <DrawerFooter className="border-t dark:border-gray-800 bg-gray-50/50 dark:bg-zinc-900/50">
-                    <Button variant="outline" onClick={onClose}>Close</Button>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                        <Icon name="mail" className="h-4 w-4 mr-2" /> Email Invoice
-                    </Button>
+                <DrawerFooter className="border-t px-6 py-4 bg-white dark:bg-zinc-900">
+                    <div className="flex justify-end gap-2 w-full">
+                        <Button variant="outline" onClick={onClose}>Close</Button>
+                        <Button className="bg-green-600 hover:bg-green-700 text-white">
+                            <Icon name="mail" className="h-4 w-4 mr-2" /> Email Invoice
+                        </Button>
+                    </div>
                 </DrawerFooter>
             </DrawerContent>
         </Drawer>

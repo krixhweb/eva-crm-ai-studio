@@ -4,12 +4,14 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface UiState {
   isSidebarOpen: boolean;
+  sidebarWidth: number;
   isDarkMode: boolean;
   breadcrumb: string[];
 }
 
 const initialState: UiState = {
   isSidebarOpen: true,
+  sidebarWidth: 260, // Default expanded width
   isDarkMode: false,
   breadcrumb: ['360° Overview', 'Dashboard'],
 };
@@ -24,6 +26,9 @@ export const uiSlice = createSlice({
     setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.isSidebarOpen = action.payload;
     },
+    setSidebarWidth: (state, action: PayloadAction<number>) => {
+      state.sidebarWidth = action.payload;
+    },
     toggleDarkMode: (state) => {
       state.isDarkMode = !state.isDarkMode;
     },
@@ -33,6 +38,6 @@ export const uiSlice = createSlice({
   },
 });
 
-export const { toggleSidebar, setSidebarOpen, toggleDarkMode, setBreadcrumb } = uiSlice.actions;
+export const { toggleSidebar, setSidebarOpen, setSidebarWidth, toggleDarkMode, setBreadcrumb } = uiSlice.actions;
 
 export default uiSlice.reducer;

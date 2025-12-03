@@ -4,6 +4,8 @@ export interface Address {
   city: string;
   state: string;
   postalCode: string;
+  country: string;
+  phone?: string;
 }
 
 export interface Company {
@@ -128,7 +130,14 @@ export interface Activity {
 export interface Campaign {
   id: string;
   name: string;
-  status: 'Active' | 'Scheduled' | 'Completed' | 'Paused';
+  type: string; 
+  status: 'Active' | 'Scheduled' | 'Completed' | 'Paused' | 'Planned' | 'Cancelled' | 'On Hold';
+  startDate: string;
+  endDate: string;
+  owner: {
+    name: string;
+    avatar: string;
+  };
   image: string;
   platforms: string[];
   metrics: {
@@ -136,8 +145,75 @@ export interface Campaign {
     clicks: number;
     conversions: number;
     spend: number;
+    revenue: number;
     roi: number;
   };
+}
+
+export interface EmailCampaign {
+  id: string;
+  name: string;
+  subject: string;
+  previewText: string;
+  fromName: string;
+  fromEmail: string;
+  status: 'Draft' | 'Scheduled' | 'Sent' | 'Failed' | 'Active' | 'Paused';
+  audience: string;
+  audienceCount: number;
+  contentHtml: string;
+  createdAt: string;
+  scheduledFor?: string;
+  sentAt?: string;
+  stats: {
+    delivered: number;
+    opens: number;
+    clicks: number;
+    bounces: number;
+    unsubscribes: number;
+    revenue: number;
+  };
+  tags: string[];
+}
+
+export interface EmailTemplate {
+  id: string;
+  name: string;
+  category: string;
+  thumbnail: string;
+  contentHtml: string;
+  designJson: string; // JSON string representing the builder state
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  usageCount: number;
+  campaignReferences?: string[];
+  analytics?: {
+    lastSentAt?: string;
+    avgOpenRate?: number;
+    avgClickRate?: number;
+    timesUsed?: number;
+  };
+}
+
+export interface Coupon extends AuditMetadata {
+    id: string;
+    code: string;
+    name: string;
+    description?: string;
+    discountType: 'Percentage' | 'Flat Amount' | 'Buy X Get Y' | 'Free Shipping';
+    value: number; // Represents % or Amount
+    status: 'Active' | 'Expired' | 'Scheduled' | 'Disabled';
+    validFrom: string;
+    validUntil: string;
+    usageLimit: number;
+    usageCount: number;
+    minOrderAmount?: number;
+    channels: string[]; // Email, WhatsApp, etc.
+    audience: string; // All, New, etc.
+    revenueGenerated: number;
+    validWeekdays?: string[];
+    validTimeStart?: string;
+    validTimeEnd?: string;
 }
 
 export interface SalesActivity extends AuditMetadata {
@@ -162,6 +238,8 @@ export interface TeamMember {
   avatar: string;
   dealsClosed: number;
   revenue: number;
+  role?: string;
+  email?: string;
 }
 
 export interface SalesTask extends AuditMetadata {
@@ -276,17 +354,104 @@ export interface LeadFormData {
 export interface Product {
   id: string;
   name: string;
-  sku: string;
-  category: string;
-  tags: string[];
   description: string;
+  status: 'Active' | 'Inactive' | 'Draft';
+  tags: string[];
+  type: 'Simple' | 'Variant' | 'Bundle';
+  category: string;
+  brand: string;
+  modelNumber: string;
+  sku: string;
+  barcode: string;
+  slug: string;
+  hsn: string;
   images: string[];
-  costPrice: number;
-  sellingPrice: number;
-  status: 'Active' | 'Inactive';
-  locations: ProductLocationStock[];
-  stock: number; // total stock
+  
+  // Inventory
+  trackQuantity: boolean;
+  continueSellingWhenOutOfStock: boolean;
+  inventoryByLocation: InventoryItem[]; // Replaces 'locations'
+  totalStock: number; // Replaces 'stock'
+  unitOfMeasurement: string;
+  moq: number;
+  backorderAllowed: boolean;
+  outOfStockBehavior: 'Hide' | 'Allow' | 'Notify';
+
+  // Automation
+  stockRules: {
+    outOfStockThreshold: number;
+    lowStockThreshold: number;
+    criticalThreshold: number;
+    safetyStock: number;
+    reorderPoint: number;
+  };
+
+  // Supplier
+  supplier: {
+    id: string;
+    name?: string;
+    supplierSKU: string;
+    purchaseCost: number;
+    leadTime: number;
+    supplierMOQ: number;
+  };
+
+  // Pricing
+  pricing: {
+    cost: number;
+    sellingPrice: number;
+    retailPrice: number; 
+    b2bPrice: number;    
+    mrp: number;
+    offerPrice: number;
+    taxRate: number;
+    margin: number;
+    profit: number;
+  };
+
+  // Logistics
+  logistics: {
+    weight: number;
+    length: number;
+    width: number;
+    height: number;
+    packageType: string;
+    fragile: boolean;
+    requiresInstallation: boolean;
+  };
+
+  // SEO
+  seo: {
+    metaTitle: string;
+    metaDescription: string;
+    slug: string;
+  };
+
+  // Audit
+  createdAt?: string;
   lastUpdated?: string;
+  history?: ProductHistory[];
+
+  // Computed/Legacy for backward compatibility in lists if needed
+  stock?: number; 
+  locations?: any[];
+  costPrice?: number;
+  sellingPrice?: number;
+}
+
+export interface InventoryItem {
+  locationId: string;
+  locationName: string;
+  stock: number;
+  type?: string;
+}
+
+export interface ProductHistory {
+  id: string;
+  action: string;
+  actor: string;
+  date: string;
+  details?: any;
 }
 
 export interface ProductLocationStock {
@@ -308,16 +473,64 @@ export interface SalesOrder {
   subtotal: number;
   taxes: number;
   totalAmount: number;
-  status: 'Draft' | 'Pending' | 'Completed' | 'Shipped' | 'Cancelled';
+  status: 'Draft' | 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Completed';
+  shippingAddress?: Address;
+  billingAddress?: Address;
+  carrier?: string;
+  trackingNumber?: string;
+  items?: {
+    id: string;
+    name: string;
+    sku: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }[];
+}
+
+export interface PurchaseOrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  sku: string;
+  vendorSku?: string;
+  quantity: number;
+  unitPrice: number;
+  taxRate: number;
+  discountPercent: number;
+  warehouseId?: string;
+  total: number;
+  image?: string;
+  category?: string;
+  stock?: number;
 }
 
 export interface PurchaseOrder {
   id: string;
   supplierName: string;
+  supplierId?: string;
+  referenceNumber?: string;
   createdDate: string;
   expectedDelivery: string;
   totalCost: number;
-  status: 'Draft' | 'Approved' | 'Received' | 'Cancelled';
+  status: 'Draft' | 'Created' | 'Approved' | 'Ordered' | 'Delivered' | 'Received' | 'Closed' | 'Cancelled';
+  
+  // Expanded fields
+  paymentTerms?: string;
+  priority?: 'Low' | 'Medium' | 'High';
+  billingAddress?: Address;
+  shippingAddress?: Address;
+  items?: PurchaseOrderItem[];
+  subtotal?: number;
+  taxTotal?: number;
+  discountTotal?: number;
+  shippingCharges?: number;
+  adjustments?: number;
+  notes?: string;
+  terms?: string;
+  carrier?: string;
+  trackingNumber?: string;
+  documents?: Attachment[];
 }
 
 export interface ReturnRequest {
@@ -327,6 +540,10 @@ export interface ReturnRequest {
     reason: string;
     type: 'Refund' | 'Exchange';
     status: 'Requested' | 'Approved' | 'Completed' | 'Rejected';
+    date?: string;
+    amount?: number;
+    items?: number;
+    daysOpen?: number;
 }
 
 export interface SupplierReturn {
@@ -346,7 +563,7 @@ export interface ShippingInfo {
     customerName: string;
     carrier: string | null;
     trackingNumber: string | null;
-    status: 'Pending' | 'Packed' | 'Shipped' | 'In Transit' | 'Delivered';
+    status: 'Pending' | 'Packed' | 'Shipped' | 'In Transit' | 'Delivered' | 'Cancelled';
     history: {
         status: string;
         date: string;
@@ -362,6 +579,7 @@ export interface LineItem {
   quantity: number;
   unitPrice: number;
   total: number;
+  taxRate?: number;
 }
 
 export interface Quote {

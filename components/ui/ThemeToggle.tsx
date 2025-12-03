@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleDarkMode } from '../../store/uiSlice';
 import type { RootState } from '../../store/store';
-import { Icon } from '../icons/Icon';
+import { Icon } from '../shared/Icon';
 import { Button } from './Button';
 import { cn } from '../../lib/utils';
 

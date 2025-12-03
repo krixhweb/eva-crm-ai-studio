@@ -103,8 +103,8 @@ export const SalesOrderFilterDrawer: React.FC<SalesOrderFilterDrawerProps> = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="w-full md:w-[420px]" resizable={false}>
-        <DrawerHeader className="border-b dark:border-gray-800 pb-4">
+      <DrawerContent className="w-full md:w-[420px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+        <DrawerHeader className="border-b dark:border-gray-800 pb-4 px-6 py-5 bg-white dark:bg-zinc-900 z-10">
           <div className="flex items-center justify-between">
             <DrawerTitle>Filter Orders</DrawerTitle>
             {activeCount > 0 && (
@@ -118,7 +118,7 @@ export const SalesOrderFilterDrawer: React.FC<SalesOrderFilterDrawerProps> = ({
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-gray-50/50 dark:bg-zinc-950/50">
           
           {/* 1. SEARCH FILTER */}
           <div className="space-y-3">
@@ -226,7 +226,7 @@ export const SalesOrderFilterDrawer: React.FC<SalesOrderFilterDrawerProps> = ({
 
         </div>
 
-        <DrawerFooter className="border-t dark:border-gray-800 bg-gray-50/50 dark:bg-zinc-900/50">
+        <DrawerFooter className="border-t dark:border-gray-800 bg-white dark:bg-zinc-900 p-4">
           <Button 
             variant="ghost" 
             onClick={handleClearLocal}

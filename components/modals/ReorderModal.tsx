@@ -9,7 +9,7 @@ import { Textarea } from '../ui/Textarea';
 import { suggestReorderQuantity, formatCurrency, cn } from '../../lib/utils';
 import type { Product } from '../../types';
 import { mockSuppliers, productLocations } from '../../data/inventoryMockData';
-import { Icon } from '../icons/Icon';
+import { Icon } from '../shared/Icon';
 import { DatePicker } from '../ui/DatePicker';
 
 export interface ReplenishmentOrderPayload {
@@ -175,8 +175,8 @@ const ReorderModal: React.FC<ReorderModalProps> = ({ isOpen, onClose, onSubmit, 
 
     return (
         <Drawer open={isOpen} onOpenChange={onClose}>
-            <DrawerContent className="max-w-2xl" resizable>
-                <DrawerHeader className="border-b border-gray-100 dark:border-gray-800 pb-4">
+            <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl" resizable>
+                <DrawerHeader className="border-b px-6 py-4">
                     <div className="flex items-start justify-between">
                         <div>
                             <DrawerTitle className="text-xl">Create Replenishment Order</DrawerTitle>
@@ -191,8 +191,8 @@ const ReorderModal: React.FC<ReorderModalProps> = ({ isOpen, onClose, onSubmit, 
                     </div>
                 </DrawerHeader>
                 
-                <div className="flex-1 overflow-y-auto">
-                    <div className="p-6 space-y-8">
+                <div className="flex-1 overflow-y-auto p-6">
+                    <div className="space-y-8">
                         
                         {/* SECTION 1: VENDOR INFORMATION */}
                         <section className="space-y-4">
@@ -442,7 +442,7 @@ const ReorderModal: React.FC<ReorderModalProps> = ({ isOpen, onClose, onSubmit, 
                     </div>
                 </div>
 
-                <DrawerFooter className="flex flex-row justify-end gap-3 border-t border-gray-100 dark:border-gray-800 pt-4">
+                <DrawerFooter className="flex flex-row justify-end gap-3 border-t px-6 py-4">
                     <Button variant="outline" onClick={onClose} className="w-24">Cancel</Button>
                     <Button 
                         onClick={handleSubmit} 

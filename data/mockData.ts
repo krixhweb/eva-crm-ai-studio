@@ -8,14 +8,14 @@ import type {
     MarketingAutomation,
     Order,
     SalesActivity,
-    SalesLead,
     SalesTask,
     ServiceAutomation,
     TeamMember,
     Workflow,
+    Coupon,
 } from '../types';
 
-// From mock/automation.ts
+// 1. Marketing Automations
 export const mockMarketingAutomations: MarketingAutomation[] = [
     { id: 1, name: "Abandoned Cart Recovery", iconName: 'shoppingCart', description: "3-email sequence to recover abandoned carts", status: "Active", trigger: "Cart abandoned for 1 hour", sent: 567, recovered: 184, revenue: 1845000, rate: 32.5 },
     { id: 2, name: "Welcome Series", iconName: 'users', description: "3 emails over 14 days for new customers", status: "Active", trigger: "New customer signup", sent: 1245, recovered: 623, revenue: 4520000, rate: 50.0 },
@@ -23,6 +23,7 @@ export const mockMarketingAutomations: MarketingAutomation[] = [
     { id: 4, name: "Win-Back Campaign", iconName: 'trendingUp', description: "Re-engage customers inactive for 90 days", status: "Paused", trigger: "90 days no activity", sent: 234, recovered: 42, revenue: 568000, rate: 17.9 },
 ];
 
+// 2. Workflows
 export const mockWorkflows: Workflow[] = [
     { id: 1, name: "Welcome Email Series", type: "Marketing", status: "Active", trigger: "Customer Signup", actions: 3, runs: 1245, saved: "42h", success: 98.5 },
     { id: 2, name: "Cart Abandonment", type: "Sales", status: "Active", trigger: "Cart Abandoned", actions: 4, runs: 567, saved: "18h", success: 92.3 },
@@ -30,6 +31,7 @@ export const mockWorkflows: Workflow[] = [
     { id: 4, name: "VIP Customer Alerts", type: "CRM", status: "Active", trigger: "High Value Purchase", actions: 5, runs: 89, saved: "12h", success: 95.5 },
 ];
 
+// 3. Service Automations
 export const mockServiceAutomations: ServiceAutomation[] = [
     { id: 1, name: "Auto-Response", iconName: 'messageSquare', description: "Instant reply to new tickets", status: "Active", trigger: "New ticket created", runs: 2341, saved: 86, success: 100 },
     { id: 2, name: "SLA Escalation", iconName: 'alertCircle', description: "Alert managers when SLA at risk", status: "Active", trigger: "SLA breach imminent", runs: 145, saved: 24, success: 97.2 },
@@ -38,55 +40,31 @@ export const mockServiceAutomations: ServiceAutomation[] = [
     { id: 5, name: "VIP White-Glove", iconName: 'trendingUp', description: "Priority handling for VIP customers", status: "Active", trigger: "VIP customer creates ticket", runs: 67, saved: 12, success: 100 },
 ];
 
-// From mock/commerce.ts
+// 4. Low Stock Products
 export const mockLowStockProducts: LowStockProduct[] = [
   { id: 'P001', name: 'Wireless Headphones', stock: 8, icon: 'headphones' },
   { id: 'P002', name: 'Smart Watch Pro', stock: 5, icon: 'watch' },
   { id: 'P003', name: 'USB-C Hub Adapter', stock: 12, icon: 'usb' },
 ];
 
+// 5. Orders
 export const mockOrders: Order[] = [
     { id: 'ORD-789', date: '2024-07-18', items: [ {id: 'p1', name: 'Product A', quantity: 2, price: 5000}, {id: 'p2', name: 'Product B', quantity: 1, price: 14999}], amount: 24999, status: 'Processing' },
     { id: 'ORD-654', date: '2024-06-25', items: [], amount: 18500, status: 'Delivered' },
     { id: 'ORD-555', date: '2024-06-10', items: [], amount: 32000, status: 'Delivered' },
 ];
 
+// 6. Order Management
 export const mockOrderManagement = {
   orders: [
     { id: "#ORD-1001", date: "2024-01-15", customer: "John Doe", items: 3, total: 45997, payment: "Paid", fulfillment: "Shipped" },
     { id: "#ORD-1002", date: "2024-01-15", customer: "Jane Smith", items: 1, total: 29999, payment: "Paid", fulfillment: "Delivered" },
     { id: "#ORD-1003", date: "2024-01-14", customer: "Bob Johnson", items: 5, total: 72495, payment: "Pending", fulfillment: "Processing" },
     { id: "#ORD-1004", date: "2024-01-14", customer: "Alice Williams", items: 2, total: 17998, payment: "Paid", fulfillment: "Shipped" },
-    { id: "#ORD-1005", date: "2024-01-13", customer: "Charlie Brown", items: 4, total: 58996, payment: "Paid", fulfillment: "Processing" },
-    { id: "#ORD-1006", date: "2024-01-13", customer: "Diana Prince", items: 1, total: 12999, payment: "Failed", fulfillment: "Cancelled" },
-    { id: "#ORD-1007", date: "2024-01-12", customer: "Edward Norton", items: 3, total: 38997, payment: "Paid", fulfillment: "Delivered" },
-    { id: "#ORD-1008", date: "2024-01-12", customer: "Fiona Green", items: 2, total: 24998, payment: "Paid", fulfillment: "Shipped" },
-    { id: "#ORD-1009", date: "2024-01-11", customer: "George Harris", items: 6, total: 89494, payment: "Paid", fulfillment: "Processing" },
-    { id: "#ORD-1010", date: "2024-01-11", customer: "Helen Clark", items: 1, total: 7999, payment: "Pending", fulfillment: "Processing" },
   ]
 };
 
-export const mockFinancials = {
-  quotes: [
-    { id: "QT-1001", date: "2024-01-15", customer: "Acme Corp", validUntil: "2024-02-15", amount: 1250000, status: "Sent", acceptance: 85 },
-    { id: "QT-1002", date: "2024-01-14", customer: "TechStart Inc", validUntil: "2024-02-14", amount: 890000, status: "Accepted", acceptance: 100 },
-    { id: "QT-1003", date: "2024-01-13", customer: "Global Solutions", validUntil: "2024-02-13", amount: 1560000, status: "Draft", acceptance: 0 },
-    { id: "QT-1004", date: "2024-01-12", customer: "Digital Agency", validUntil: "2024-02-12", amount: 675000, status: "Expired", acceptance: 45 },
-  ],
-  invoices: [
-    { id: "INV-2001", issued: "2024-01-10", due: "2024-02-10", customer: "Acme Corp", amount: 1250000, paid: 1250000, balance: 0, status: "Paid", overdue: 0 },
-    { id: "INV-2002", issued: "2024-01-08", due: "2024-02-08", customer: "TechStart Inc", amount: 890000, paid: 445000, balance: 445000, status: "Partial", overdue: 0 },
-    { id: "INV-2003", issued: "2024-01-05", due: "2024-01-20", customer: "Global Solutions", amount: 1560000, paid: 0, balance: 1560000, status: "Overdue", overdue: 10 },
-    { id: "INV-2004", issued: "2024-01-03", due: "2024-02-03", customer: "Digital Agency", amount: 675000, paid: 0, balance: 675000, status: "Sent", overdue: 0 },
-  ],
-  payments: [
-    { date: "2024-01-15", id: "PAY-5001", invoice: "INV-2001", customer: "Acme Corp", amount: 1250000, method: "Credit Card", reference: "CH-12345", status: "Completed", account: "Main" },
-    { date: "2024-01-12", id: "PAY-5002", invoice: "INV-2002", customer: "TechStart Inc", amount: 445000, method: "Bank Transfer", reference: "BT-67890", status: "Completed", account: "Main" },
-    { date: "2024-01-10", id: "PAY-5003", invoice: "INV-2004", customer: "Digital Agency", amount: 337500, method: "PayPal", reference: "PP-11223", status: "Pending", account: "Main" },
-  ]
-};
-
-// From mock/customers.ts
+// 7. Customers
 export const mockCustomers: Customer[] = [
   {
     id: 'CUST-001',
@@ -101,7 +79,7 @@ export const mockCustomers: Customer[] = [
     leadOwner: { name: 'Priya Patel', avatar: 'PP' },
     leadStatus: 'Won',
     lastContacted: '2024-07-15',
-    address: { street: '123 MG Road', city: 'Mumbai', state: 'Maharashtra', postalCode: '400001' },
+    address: { street: '123 MG Road', city: 'Mumbai', state: 'Maharashtra', postalCode: '400001', country: 'India' },
     company: { name: 'Sharma Enterprises', industry: 'Retail' },
     tickets: [
         { id: 'TKT-101', subject: 'Issue with wireless headphones', status: 'Solved', lastUpdate: '2024-07-10' },
@@ -125,7 +103,7 @@ export const mockCustomers: Customer[] = [
     leadOwner: { name: 'Rohan Kumar', avatar: 'RK' },
     leadStatus: 'Contacted',
     lastContacted: '2024-07-18',
-    address: { street: '456 CG Road', city: 'Ahmedabad', state: 'Gujarat', postalCode: '380009' },
+    address: { street: '456 CG Road', city: 'Ahmedabad', state: 'Gujarat', postalCode: '380009', country: 'India' },
     tickets: [],
     notes: [],
     segment: 'Loyal Customers'
@@ -143,7 +121,7 @@ export const mockCustomers: Customer[] = [
     leadOwner: { name: 'Ananya Singh', avatar: 'AS' },
     leadStatus: 'New Lead',
     lastContacted: '2024-02-01',
-    address: { street: '789 Indiranagar', city: 'Bengaluru', state: 'Karnataka', postalCode: '560038' },
+    address: { street: '789 Indiranagar', city: 'Bengaluru', state: 'Karnataka', postalCode: '560038', country: 'India' },
     tickets: [{ id: 'TKT-102', subject: 'Refund request', status: 'Closed', lastUpdate: '2024-01-15' }],
     notes: [],
     segment: 'At Risk'
@@ -161,7 +139,7 @@ export const mockCustomers: Customer[] = [
     leadOwner: { name: 'Priya Patel', avatar: 'PP' },
     leadStatus: 'Won',
     lastContacted: '2024-07-21',
-    address: { street: '101 DLF CyberCity', city: 'Gurugram', state: 'Haryana', postalCode: '122002' },
+    address: { street: '101 DLF CyberCity', city: 'Gurugram', state: 'Haryana', postalCode: '122002', country: 'India' },
     tickets: [],
     notes: [],
     segment: 'Champions'
@@ -179,247 +157,249 @@ export const mockCustomers: Customer[] = [
     leadOwner: { name: 'Rohan Kumar', avatar: 'RK' },
     leadStatus: 'Qualified',
     lastContacted: '2024-07-12',
-    address: { street: '21 Jubilee Hills', city: 'Hyderabad', state: 'Telangana', postalCode: '500033' },
+    address: { street: '21 Jubilee Hills', city: 'Hyderabad', state: 'Telangana', postalCode: '500033', country: 'India' },
     tickets: [{ id: 'TKT-103', subject: 'Product query', status: 'Pending', lastUpdate: '2024-07-19' }],
     notes: [],
     segment: 'Potential Loyalists'
-  },
-    { id: 'CUST-006', name: 'Siddharth Rao', email: 'sid.rao@example.com', phone: '+91 91122 33445', status: 'Active', orders: 15, totalSpent: 210000, customerSince: '2022-02-28', tags: ['VIP'], leadOwner: { name: 'Priya Patel', avatar: 'PP' }, leadStatus: 'Won', lastContacted: '2024-07-20', address: { street: 'Plot 45, Hitec City', city: 'Hyderabad', state: 'Telangana', postalCode: '500081' }, tickets: [], notes: [], segment: 'Champions' },
-    { id: 'CUST-007', name: 'Neha Sharma', email: 'neha.s@example.com', phone: '+91 88877 66554', status: 'Inactive', orders: 2, totalSpent: 15000, customerSince: '2023-11-01', tags: [], leadOwner: { name: 'Rohan Kumar', avatar: 'RK' }, leadStatus: 'Lost', lastContacted: '2024-01-10', address: { street: 'A-1, Sector 62', city: 'Noida', state: 'Uttar Pradesh', postalCode: '201301' }, tickets: [], notes: [], segment: 'Lost' },
-    { id: 'CUST-008', name: 'Aditya Verma', email: 'aditya.v@example.com', phone: '+91 77766 55443', status: 'Active', orders: 7, totalSpent: 95000, customerSince: '2023-01-05', tags: ['Loyal Customer'], leadOwner: { name: 'Ananya Singh', avatar: 'AS' }, leadStatus: 'Contacted', lastContacted: '2024-07-19', address: { street: 'Bandra West', city: 'Mumbai', state: 'Maharashtra', postalCode: '400050' }, tickets: [], notes: [], segment: 'Loyal Customers' },
-    { id: 'CUST-009', name: 'Kavita Iyer', email: 'kavita.iyer@example.com', phone: '+91 90080 07006', status: 'Active', orders: 4, totalSpent: 62000, customerSince: '2023-09-20', tags: ['Potential Loyalist'], leadOwner: { name: 'Priya Patel', avatar: 'PP' }, leadStatus: 'Qualified', lastContacted: '2024-07-15', address: { street: 'Anna Nagar', city: 'Chennai', state: 'Tamil Nadu', postalCode: '600040' }, tickets: [], notes: [], segment: 'Potential Loyalists' },
+  }
 ];
 
-// From mock/marketing.ts
-export const mockCampaigns: Campaign[] = [
-  { id: 'camp1', name: 'Summer Sale Spectacle', status: 'Active', image: 'https://images.unsplash.com/photo-1504890001746-a9a68eda46e2?q=80&w=300', platforms: ['Facebook', 'Instagram'], metrics: { impressions: 45.2, clicks: 2300, conversions: 120, spend: 50000, roi: 450 } },
-  { id: 'camp2', name: 'Monsoon Mania Deals', status: 'Completed', image: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?q=80&w=300', platforms: ['Twitter'], metrics: { impressions: 22.1, clicks: 1100, conversions: 45, spend: 25000, roi: 280 } },
-  { id: 'camp3', name: 'Diwali Dhamaka Offers', status: 'Scheduled', image: 'https://images.unsplash.com/photo-1572455044234-22d39994c86b?q=80&w=300', platforms: ['Facebook', 'Instagram', 'TikTok'], metrics: { impressions: 0, clicks: 0, conversions: 0, spend: 0, roi: 0 } },
-  { id: 'camp4', name: 'New Year New Gear', status: 'Paused', image: 'https://images.unsplash.com/photo-1517420704952-d9219d2d1412?q=80&w=300', platforms: ['TikTok'], metrics: { impressions: 15.6, clicks: 850, conversions: 30, spend: 18000, roi: 150 } },
-  { id: 'camp5', name: 'Clearance Sale', status: 'Active', image: 'https://images.unsplash.com/photo-1555529771-835f59fc5efe?q=80&w=300', platforms: ['Instagram'], metrics: { impressions: 62.5, clicks: 3500, conversions: 250, spend: 75000, roi: 600 } },
-  { id: 'camp6', name: 'Back to School', status: 'Completed', image: 'https://images.unsplash.com/photo-1560780552-ba5468389472?q=80&w=300', platforms: ['Facebook'], metrics: { impressions: 31.0, clicks: 1500, conversions: 80, spend: 30000, roi: 350 } },
+// 8. Dashboard Data
+export const mockDashboardRevenueData = [
+    { name: 'Jan', revenue: 4000, goal: 2400 },
+    { name: 'Feb', revenue: 3000, goal: 1398 },
+    { name: 'Mar', revenue: 2000, goal: 9800 },
+    { name: 'Apr', revenue: 2780, goal: 3908 },
+    { name: 'May', revenue: 1890, goal: 4800 },
+    { name: 'Jun', revenue: 2390, goal: 3800 },
+    { name: 'Jul', revenue: 3490, goal: 4300 },
 ];
 
+export const mockDashboardAcquisitionData = [
+    { name: 'Social Media', value: 35, color: '#8884d8' },
+    { name: 'Direct', value: 25, color: '#82ca9d' },
+    { name: 'Referral', value: 20, color: '#ffc658' },
+    { name: 'Organic Search', value: 20, color: '#ff8042' },
+];
+
+export const mockDashboardFunnelData = [
+    { name: 'Visitors', value: 15000 },
+    { name: 'Leads', value: 4000 },
+    { name: 'Qualified', value: 2000 },
+    { name: 'Deals', value: 1000 },
+    { name: 'Customers', value: 500 },
+];
+
+export const mockDashboardTopProducts = [
+    { name: "Ergonomic Chair", sales: 1234, revenue: 450000 },
+    { name: "Standing Desk", sales: 987, revenue: 320000 },
+    { name: "Monitor Arm", sales: 654, revenue: 150000 },
+];
+
+export const mockDashboardRecentOrders = [
+    { id: "ORD-789", customer: "Arjun Sharma", amount: 24999, status: "Processing" },
+    { id: "ORD-654", customer: "Priya Patel", amount: 18500, status: "Delivered" },
+    { id: "ORD-555", customer: "Rohan Kumar", amount: 32000, status: "Delivered" },
+    { id: "ORD-432", customer: "Ananya Singh", amount: 8500, status: "Cancelled" },
+];
+
+// 9. RFM Segments
+export const rfmSegments = [
+    { name: "Champions", description: "Bought recently, buy often and spend the most", count: 450, percentage: 18, avgSpend: 125000, avgFrequency: 15, lastPurchaseAvg: 5, color: "from-green-500 to-emerald-600", bgColor: "bg-green-50 dark:bg-green-900/10", textColor: "text-green-600 dark:text-green-400" },
+    { name: "Loyal Customers", description: "Buy on a regular basis. Responsive to promotions.", count: 890, percentage: 35, avgSpend: 65000, avgFrequency: 8, lastPurchaseAvg: 25, color: "from-blue-500 to-indigo-600", bgColor: "bg-blue-50 dark:bg-blue-900/10", textColor: "text-blue-600 dark:text-blue-400" },
+    { name: "Potential Loyalists", description: "Recent customers with average frequency.", count: 650, percentage: 26, avgSpend: 25000, avgFrequency: 3, lastPurchaseAvg: 45, color: "from-yellow-500 to-amber-600", bgColor: "bg-yellow-50 dark:bg-yellow-900/10", textColor: "text-yellow-600 dark:text-yellow-400" },
+    { name: "At Risk", description: "Purchased often but a long time ago.", count: 510, percentage: 21, avgSpend: 55000, avgFrequency: 6, lastPurchaseAvg: 120, color: "from-red-500 to-rose-600", bgColor: "bg-red-50 dark:bg-red-900/10", textColor: "text-red-600 dark:text-red-400" }
+];
+
+// 10. Abandoned Carts
 export const mockAbandonedCarts = [
-    { id: 'c1', customer: 'Arjun Sharma', email: 'arjun.sharma@example.com', value: 10040, items: 3, abandoned: '2 hours ago', status: 'New'},
-    { id: 'c2', customer: 'Priya Patel', email: 'priya.patel@example.com', value: 7120, items: 2, abandoned: '5 hours ago', status: 'Email Sent'},
-    { id: 'c3', customer: 'Rohan Kumar', email: 'rohan.kumar@example.com', value: 20000, items: 5, abandoned: '1 day ago', status: 'Recovered'},
-    { id: 'c4', customer: 'Ananya Singh', email: 'ananya.singh@example.com', value: 3660, items: 1, abandoned: '2 days ago', status: 'Lost'},
+    { id: 1, customer: "Rahul Gupta", email: "rahul@example.com", value: 45000, items: 3, abandoned: "2 hours ago", status: "New" },
+    { id: 2, customer: "Sneha Reddy", email: "sneha@example.com", value: 12500, items: 1, abandoned: "5 hours ago", status: "Email Sent" },
+    { id: 3, customer: "Vikram Singh", email: "vikram@example.com", value: 89000, items: 5, abandoned: "1 day ago", status: "Recovered" },
+    { id: 4, customer: "Pooja Mehta", email: "pooja@example.com", value: 22000, items: 2, abandoned: "2 days ago", status: "Lost" }
 ];
 
 export const mockCartRecoveryCampaigns = [
-    {
-      id: 1,
-      name: "Standard Cart Recovery",
-      status: 'active' as 'active' | 'paused',
-      trigger: "Cart abandoned for 1 hour",
-      emails: [
-        { subject: "Did you forget something?", delay: "1 hour", openRate: 42.5, clickRate: 15.2 },
-        { subject: "Your cart is about to expire", delay: "24 hours", openRate: 35.1, clickRate: 10.8 },
-        { subject: "We're holding your items for you", delay: "3 days", openRate: 28.9, clickRate: 8.1 },
-      ],
-      recovered: 184,
-      revenue: 1845000,
-      rate: 32.5,
-    },
-    {
-      id: 2,
-      name: "High-Value Cart Recovery",
-      status: 'paused' as 'active' | 'paused',
-      trigger: "Cart value > ₹10,000 abandoned",
-      emails: [
-        { subject: "A special offer for your cart...", delay: "30 minutes", openRate: 55.2, clickRate: 22.1 },
-        { subject: "Don't miss out on these items!", delay: "12 hours", openRate: 48.3, clickRate: 18.5 },
-      ],
-      recovered: 78,
-      revenue: 950000,
-      rate: 45.2,
-    }
-  ];
-
-// From mock/sales.ts
-export const mockDeals: Deal[] = [
-    { id: 'deal-9', company: 'Future Inc', contactPerson: 'Nia Sharma', description: 'AI chatbot integration', value: 22000, probability: 10, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 6, priority: "low", stage: "Lead Gen", comments: 0, attachments: 0, dueDate: '2024-09-10' },
-    { id: 'deal-10', company: 'NextGen Co', contactPerson: 'Omar Abdullah', description: 'Social media management', value: 16000, probability: 10, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 9, priority: "low", stage: "Lead Gen", comments: 0, attachments: 0, dueDate: '2024-09-15' },
-    { id: 'deal-13', company: 'Alpha Widgets', contactPerson: 'Priya Singh', description: 'Initial inquiry for widget supply', value: 12000, probability: 5, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 2, priority: "low", stage: "Lead Gen", comments: 0, attachments: 0, dueDate: '2024-09-20' },
-    { id: 'deal-14', company: 'Beta Services', contactPerson: 'Raj Patel', description: 'Downloaded e-book on marketing', value: 8000, probability: 5, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 3, priority: "low", stage: "Lead Gen", comments: 0, attachments: 0, dueDate: '2024-09-22' },
-    { id: 'deal-15', company: 'Gamma Tech', contactPerson: 'Sonia Gupta', description: 'Website contact form submission', value: 15000, probability: 10, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 1, priority: "medium", stage: "Lead Gen", comments: 0, attachments: 0, dueDate: '2024-09-25' },
-    { id: 'deal-7', company: 'MegaCorp', contactPerson: 'Tara Khanna', description: 'Logistics management system', value: 38000, probability: 25, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 10, priority: "medium", stage: "Qualification", comments: 0, attachments: 0, dueDate: '2024-09-01' },
-    { id: 'deal-8', company: 'TechStart', contactPerson: 'Umar Farooq', description: 'Website redesign', value: 19500, probability: 35, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 18, priority: "low", stage: "Qualification", comments: 1, attachments: 1, dueDate: '2024-09-05' },
-    { id: 'deal-16', company: 'Delta Solutions', contactPerson: 'Vani Kapoor', description: 'Follow-up call after webinar', value: 25000, probability: 30, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 4, priority: "medium", stage: "Qualification", comments: 1, attachments: 0, dueDate: '2024-09-18' },
-    { id: 'deal-17', company: 'Epsilon LLC', contactPerson: 'Waseem Khan', description: 'Discovery call scheduled', value: 42000, probability: 40, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 2, priority: "high", stage: "Qualification", comments: 0, attachments: 0, dueDate: '2024-09-12' },
-    { id: 'deal-18', company: 'Zeta Corp', contactPerson: 'Yusuf Ali', description: 'Budget and authority confirmed', value: 31000, probability: 45, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 8, priority: "medium", stage: "Qualification", comments: 2, attachments: 1, dueDate: '2024-09-10' },
-    { id: 'deal-5', company: 'GlobalTech', contactPerson: 'Zoya Akhtar', description: 'Cybersecurity audit', value: 45000, probability: 60, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 3, priority: "high", stage: "Proposal", comments: 4, attachments: 1, dueDate: '2024-08-05' },
-    { id: 'deal-6', company: 'InnovateCo', contactPerson: 'Anjali Menon', description: 'Custom mobile app development', value: 28000, probability: 65, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 7, priority: "high", stage: "Proposal", comments: 2, attachments: 2, dueDate: '2024-08-12' },
-    { id: 'deal-19', company: 'Theta Industries', contactPerson: 'Bhavna Reddy', description: 'Proposal sent for hardware refresh', value: 75000, probability: 55, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 1, priority: "high", stage: "Proposal", comments: 0, attachments: 1, dueDate: '2024-08-20' },
-    { id: 'deal-20', company: 'Iota Ventures', contactPerson: 'Chetan Kumar', description: 'Drafting contract for consulting', value: 20000, probability: 50, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 5, priority: "medium", stage: "Proposal", comments: 3, attachments: 2, dueDate: '2024-08-25' },
-    { id: 'deal-21', company: 'Kappa Logistics', contactPerson: 'Divya Sharma', description: 'Submitted pricing for fleet mgmt', value: 62000, probability: 60, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 4, priority: "high", stage: "Proposal", comments: 1, attachments: 1, dueDate: '2024-08-18' },
-    { id: 'deal-3', company: 'StartupX', contactPerson: 'Esha Gupta', description: 'Cloud infrastructure setup', value: 15000, probability: 75, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 12, priority: "medium", stage: "Demo", comments: 5, attachments: 3, dueDate: '2024-08-20' },
-    { id: 'deal-4', company: 'Enterprise Co', contactPerson: 'Faisal Ahmed', description: 'Data analytics dashboard', value: 32000, probability: 70, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 15, priority: "medium", stage: "Demo", comments: 2, attachments: 0, dueDate: '2024-08-22' },
-    { id: 'deal-22', company: 'Lambda Systems', contactPerson: 'Gita Nair', description: 'Product demo completed', value: 28000, probability: 80, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 3, priority: "high", stage: "Demo", comments: 4, attachments: 1, dueDate: '2024-08-15' },
-    { id: 'deal-23', company: 'Mu Digital', contactPerson: 'Harish Iyer', description: 'Stakeholder demo scheduled', value: 19000, probability: 70, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 6, priority: "medium", stage: "Demo", comments: 1, attachments: 0, dueDate: '2024-08-28' },
-    { id: 'deal-24', company: 'Nu Solutions', contactPerson: 'Imran Khan', description: 'Follow-up demo for technical team', value: 34000, probability: 75, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 2, priority: "high", stage: "Demo", comments: 3, attachments: 2, dueDate: '2024-08-21' },
-    { id: 'deal-1', company: 'TechCorp Inc', contactPerson: 'John Doe', description: 'Enterprise software solution', value: 25000, probability: 90, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 5, priority: "high", stage: "Negotiation", comments: 3, attachments: 2, dueDate: '2024-08-10' },
-    { id: 'deal-2', company: 'Digital Solutions', contactPerson: 'Jane Smith', description: 'Marketing automation platform', value: 18500, probability: 85, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 8, priority: "high", stage: "Negotiation", comments: 1, attachments: 1, dueDate: '2024-08-15' },
-    { id: 'deal-25', company: 'Xi Enterprises', contactPerson: 'Kiran Rao', description: 'Finalizing terms, redlines received', value: 55000, probability: 95, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 3, priority: "high", stage: "Negotiation", comments: 5, attachments: 3, dueDate: '2024-08-08' },
-    { id: 'deal-26', company: 'Omicron Media', contactPerson: 'Lalit Modi', description: 'Discount approval pending', value: 21000, probability: 85, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 6, priority: "medium", stage: "Negotiation", comments: 2, attachments: 1, dueDate: '2024-08-14' },
-    { id: 'deal-27', company: 'Pi Analytics', contactPerson: 'Meena Kumari', description: 'Legal review in progress', value: 48000, probability: 90, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 4, priority: "high", stage: "Negotiation", comments: 3, attachments: 2, dueDate: '2024-08-11' },
-    { id: 'deal-11', company: 'Apex Solutions', contactPerson: 'Amitabh Bachchan', description: 'CRM implementation', value: 52000, probability: 100, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 2, priority: "high", stage: "Closed Won", comments: 8, attachments: 5, dueDate: '2024-07-20' },
-    { id: 'deal-28', company: 'Rho Consulting', contactPerson: 'Priyanka Chopra', description: 'Management consulting package', value: 68000, probability: 100, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 1, priority: "high", stage: "Closed Won", comments: 6, attachments: 4, dueDate: '2024-07-25' },
-    { id: 'deal-29', company: 'Sigma Security', contactPerson: 'Shah Rukh Khan', description: 'Annual security retainer', value: 95000, probability: 100, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 3, priority: "high", stage: "Closed Won", comments: 10, attachments: 6, dueDate: '2024-07-28' },
-    { id: 'deal-12', company: 'Synergy Systems', contactPerson: 'Aishwarya Rai', description: 'Cloud migration service', value: 41000, probability: 0, assignees: [{name: 'John Doe', avatar: 'JD'}], daysInStage: 25, priority: "medium", stage: "Closed Lost", comments: 3, attachments: 1, dueDate: '2024-07-18' },
-    { id: 'deal-30', company: 'Tau Manufacturing', contactPerson: 'Deepika Padukone', description: 'Went with competitor', value: 33000, probability: 0, assignees: [{name: 'Priya Patel', avatar: 'PP'}], daysInStage: 30, priority: "medium", stage: "Closed Lost", comments: 4, attachments: 2, dueDate: '2024-07-22' },
-    { id: 'deal-31', company: 'Upsilon Software', contactPerson: 'Ranveer Singh', description: 'Project cancelled internally', value: 27000, probability: 0, assignees: [{name: 'Rohan Kumar', avatar: 'RK'}], daysInStage: 22, priority: "low", stage: "Closed Lost", comments: 1, attachments: 1, dueDate: '2024-07-26' },
+    { id: 1, name: "High Value Cart Recovery", status: "active", trigger: "Cart value > ₹10,000", emails: [{ subject: "You left something behind!", delay: "1 hour", openRate: 45, clickRate: 12 }, { subject: "Complete your purchase - 5% off", delay: "24 hours", openRate: 38, clickRate: 15 }], recovered: 85, revenue: 1250000, rate: 28 },
+    { id: 2, name: "Standard Recovery", status: "active", trigger: "All other carts", emails: [{ subject: "Forgot something?", delay: "2 hours", openRate: 32, clickRate: 8 }], recovered: 120, revenue: 450000, rate: 18 }
 ];
 
-export const mockSalesActivities: SalesActivity[] = [
-    { id: 'sa1', type: 'DEAL_WON', title: 'Closed deal with Sharma Enterprises', user: { name: 'Priya Patel', avatar: 'PP' }, relatedCustomer: { id: 'CUST-001', name: 'Arjun Sharma' }, details: 'Value: ₹5,00,000 | Product: Bulk Headphone Order', timestamp: '2 days ago' },
-    { id: 'sa2', type: 'MEETING', title: 'Discovery call with potential client', user: { name: 'Rohan Kumar', avatar: 'RK' }, details: 'Scheduled for 25th July, 2024', timestamp: '3 days ago' },
-    { id: 'sa3', type: 'CALL', title: 'Follow-up call with Ananya Singh', user: { name: 'Priya Patel', avatar: 'PP' }, relatedCustomer: { id: 'CUST-004', name: 'Ananya Singh' }, details: 'Discussed renewal options. Positive response.', timestamp: '4 days ago' },
-    { id: 'sa4', type: 'TASK', title: 'Prepare proposal for Vikram Mehta', user: { name: 'Rohan Kumar', avatar: 'RK' }, relatedCustomer: { id: 'CUST-005', name: 'Vikram Mehta' }, details: 'Due: 22nd July, 2024', timestamp: '5 days ago' },
-    { id: 'sa5', type: 'EMAIL', title: 'Sent introductory email to New Lead', user: { name: 'Ananya Singh', avatar: 'AS' }, details: 'Subject: Exploring Synergies with EVA CRM', timestamp: '6 days ago' },
+// 11. Campaigns
+export const mockCampaigns: Campaign[] = [
+    { id: "CMP-001", name: "Summer Sale 2024", type: "Advertisement", status: "Active", startDate: "2024-06-01", endDate: "2024-06-30", image: "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?w=400&q=80", platforms: ["Facebook", "Instagram"], owner: { name: "Priya Patel", avatar: "PP" }, metrics: { impressions: 150000, clicks: 4500, conversions: 120, spend: 25000, revenue: 180000, roi: 620 } },
+    { id: "CMP-002", name: "New Product Launch", type: "Email Campaign", status: "Scheduled", startDate: "2024-07-15", endDate: "2024-07-20", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80", platforms: ["Email"], owner: { name: "Rohan Kumar", avatar: "RK" }, metrics: { impressions: 0, clicks: 0, conversions: 0, spend: 5000, revenue: 0, roi: 0 } },
+    { id: "CMP-003", name: "Influencer Collab", type: "Social Media", status: "Active", startDate: "2024-05-20", endDate: "2024-07-20", image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&q=80", platforms: ["Instagram", "TikTok"], owner: { name: "Ananya Singh", avatar: "AS" }, metrics: { impressions: 280000, clicks: 8900, conversions: 340, spend: 50000, revenue: 420000, roi: 740 } },
+    { id: "CMP-004", name: "Loyalty Program", type: "Referral Program", status: "Active", startDate: "2024-01-01", endDate: "2024-12-31", image: "https://images.unsplash.com/photo-1556741533-974f8e62a92d?w=400&q=80", platforms: ["Email", "App"], owner: { name: "Priya Patel", avatar: "PP" }, metrics: { impressions: 50000, clicks: 1200, conversions: 850, spend: 10000, revenue: 850000, roi: 8400 } },
 ];
 
-export const mockTeamMembers: TeamMember[] = [
-    { id: 'tm1', name: 'Priya Patel', avatar: 'PP', dealsClosed: 42, revenue: 1250000 },
-    { id: 'tm2', name: 'Rohan Kumar', avatar: 'RK', dealsClosed: 35, revenue: 980000 },
-    { id: 'tm3', name: 'Ananya Singh', avatar: 'AS', dealsClosed: 28, revenue: 820000 },
-    { id: 'tm4', name: 'John Doe', avatar: 'JD', dealsClosed: 50, revenue: 1500000 },
-];
-
-export const mockSalesTasks: SalesTask[] = [
-    { id: 'st1', title: 'Follow up with Aditya Verma', dueDate: '2024-07-22', isOverdue: false, priority: 'High', status: 'Open' },
-    { id: 'st2', title: 'Send proposal to Kavita Iyer', dueDate: '2024-07-21', isOverdue: false, priority: 'Medium', status: 'Completed' },
-    { id: 'st3', title: 'Schedule demo for New Lead Co', dueDate: '2024-07-19', isOverdue: true, priority: 'High', status: 'Overdue' },
-];
-
-export const mockSalesLeads: SalesLead[] = [
-    { id: 'sl1', name: 'Aarav Gupta', company: 'Innovate Solutions', value: 500000, owner: { name: 'Priya Patel', avatar: 'PP' }, lastContacted: '2024-07-20' },
-    { id: 'sl2', name: 'Isha Reddy', company: 'Digital Transformations', value: 750000, owner: { name: 'Rohan Kumar', avatar: 'RK' }, lastContacted: '2024-07-18' },
-    { id: 'sl3', name: 'Kabir Khan', company: 'Global Exports', value: 350000, owner: { name: 'Ananya Singh', avatar: 'AS' }, lastContacted: '2024-07-19' },
-];
-
-// From mock/shared.ts
+// 12. Activities
 export const mockActivities: Activity[] = [
-  { id: 'act1', title: 'Order Placed', timestamp: '2 days ago', type: 'Order', details: { orderId: 'ORD-789', items: 3, value: '₹24,999', status: 'Processing' } },
-  { id: 'act2', title: 'Support Ticket Created', timestamp: '3 days ago', type: 'Ticket', details: { ticketId: 'TKT-105', subject: 'Delivery delay for order #ORD-555', status: 'Open' } },
-  { id: 'act3', title: 'Abandoned Cart', timestamp: '5 days ago', type: 'Cart', details: { items: 2, value: '₹7,120' } },
-  { id: 'act4', title: 'Profile Updated', timestamp: '1 week ago', type: 'Profile', details: { from: 'arjun.s@old.com', to: 'arjun.sharma@example.com' } },
-  { id: 'act5', title: 'Login from new device', timestamp: '2 weeks ago', type: 'Login', details: { ipAddress: '103.22.201.135', device: 'Chrome on Windows', location: 'Mumbai, IN' } },
-  { id: 'act6', title: 'Viewed Product', timestamp: '2 weeks ago', type: 'PageView', details: { productName: 'Smart Watch Pro', productId: 'P002', url: '/products/smart-watch-pro' } },
+    { id: 'act-1', title: 'Order Placed', timestamp: '2 hours ago', type: 'Order', details: { orderId: 'ORD-789', value: '₹24,999', items: 3, status: 'Processing' } },
+    { id: 'act-2', title: 'Ticket Created', timestamp: '5 hours ago', type: 'Ticket', details: { ticketId: 'TKT-105', subject: 'Delivery delay', status: 'Open' } },
+    { id: 'act-3', title: 'Profile Updated', timestamp: '1 day ago', type: 'Profile', details: { from: 'old@email.com', to: 'new@email.com' } },
+    { id: 'act-4', title: 'Cart Abandoned', timestamp: '2 days ago', type: 'Cart', details: { value: '₹12,500', items: 1 } },
+    { id: 'act-5', title: 'Email Opened', timestamp: '3 days ago', type: 'Email', details: { subject: 'Your cart is waiting', campaign: 'Cart Recovery' } },
 ];
 
+// 13. Communications
 export const mockCommunications = [
-    { id: 'comm1', channel: 'Email', subject: 'Your order #ORD-789 has been shipped!', preview: 'Hi Arjun, great news! Your recent order containing Wireless Headphones...', timestamp: '1 day ago', direction: 'Sent' },
-    { id: 'comm2', channel: 'SMS', subject: 'Delivery Update', preview: 'Your EVA CRM order is out for delivery. Track here: eva.short.link/xyz', timestamp: '2 days ago', direction: 'Sent' },
-    { id: 'comm3', channel: 'Phone', subject: 'Follow-up on bulk discount inquiry', preview: 'Call with Priya Patel regarding corporate gifting options.', timestamp: '3 weeks ago', direction: 'Sent' },
-    { id: 'comm4', channel: 'Chat', subject: 'Question about product compatibility', preview: 'Customer asked if the USB-C hub is compatible with...', timestamp: '1 month ago', direction: 'Received' },
+    { id: 'com-1', channel: 'Email', subject: 'Re: Delivery Inquiry', preview: 'Your order is scheduled for delivery tomorrow.', timestamp: '2 hours ago', direction: 'Sent' },
+    { id: 'com-2', channel: 'Phone', subject: 'Incoming Call', preview: 'Duration: 4m 32s', timestamp: '5 hours ago', direction: 'Received' },
+    { id: 'com-3', channel: 'SMS', subject: 'Order Confirmation', preview: 'Your order #ORD-789 has been confirmed.', timestamp: '1 day ago', direction: 'Sent' },
+    { id: 'com-4', channel: 'Chat', subject: 'Product Question', preview: 'Does this come in blue?', timestamp: '2 days ago', direction: 'Received' },
 ];
 
-// From mock/support.ts
-export const mockTickets = [
-    { id: "T-1001", status: "Open", priority: "High", subject: "Payment not processing", customer: "John Doe", assigned: "Sarah K.", channel: "Email", created: "2 hours ago", updated: "30 mins ago", sla: "2h left" },
-    { id: "T-1002", status: "Pending", priority: "Medium", subject: "Shipping inquiry", customer: "Jane Smith", assigned: "Mike R.", channel: "Chat", created: "5 hours ago", updated: "1 hour ago", sla: "4h left" },
-    { id: "T-1003", status: "Resolved", priority: "Low", subject: "Product question", customer: "Bob Johnson", assigned: "Lisa T.", channel: "Phone", created: "1 day ago", updated: "3 hours ago", sla: "Resolved" },
-    { id: "T-1004", status: "Open", priority: "High", subject: "Account access issue", customer: "Alice W.", assigned: "Tom B.", channel: "Email", created: "1 hour ago", updated: "45 mins ago", sla: "3h left" },
-    { id: "T-1005", status: "Pending", priority: "Medium", subject: "Refund request", customer: "Charlie B.", assigned: "Sarah K.", channel: "Social", created: "3 hours ago", updated: "2 hours ago", sla: "6h left" },
+// 14. Deals
+export const mockDeals: Deal[] = [
+    { id: 'deal-1', company: 'TechStart Inc.', contactPerson: 'Rahul Verma', description: 'Office furniture upgrade', value: 450000, dueDate: '2024-08-15', assignees: [{ name: 'Priya Patel', avatar: 'PP' }], comments: 5, attachments: 2, stage: 'Negotiation', priority: 'high', probability: 75, daysInStage: 5 },
+    { id: 'deal-2', company: 'GreenLeaf Co.', contactPerson: 'Sneha Gupta', description: 'New branch setup', value: 280000, dueDate: '2024-08-20', assignees: [{ name: 'Rohan Kumar', avatar: 'RK' }], comments: 2, attachments: 1, stage: 'Proposal', priority: 'medium', probability: 40, daysInStage: 3 },
+    { id: 'deal-3', company: 'BlueSky Ltd.', contactPerson: 'Vikram Singh', description: 'Conference room chairs', value: 120000, dueDate: '2024-08-10', assignees: [{ name: 'Ananya Singh', avatar: 'AS' }], comments: 0, attachments: 0, stage: 'Qualification', priority: 'low', probability: 20, daysInStage: 1 },
+    { id: 'deal-4', company: 'RedRock LLC', contactPerson: 'Amit Shah', description: 'Bulk order for workstations', value: 850000, dueDate: '2024-09-01', assignees: [{ name: 'Priya Patel', avatar: 'PP' }], comments: 8, attachments: 4, stage: 'Closed Won', priority: 'high', probability: 100, daysInStage: 0 },
 ];
 
-export const mockReturns = [
-    { id: "RET-501", orderId: "ORD-985", date: "2024-01-14", customer: "Mike Johnson", items: 2, amount: 19998, reason: "Defective", status: "Approved", daysOpen: 2 },
-    { id: "RET-502", orderId: "ORD-892", date: "2024-01-12", customer: "Sarah Lee", items: 1, amount: 8999, reason: "Wrong Size", status: "Pending", daysOpen: 4 },
-    { id: "RET-503", orderId: "ORD-756", date: "2024-01-10", customer: "Tom Wilson", items: 3, amount: 35997, reason: "Changed Mind", status: "Completed", daysOpen: 6 },
-    { id: "RET-504", orderId: "ORD-623", date: "2024-01-08", customer: "Emily Davis", items: 1, amount: 12999, reason: "Not as Described", status: "Approved", daysOpen: 8 },
-    { id: "RET-505", orderId: "ORD-511", date: "2024-01-06", customer: "David Brown", items: 2, amount: 24998, reason: "Damaged in Transit", status: "Rejected", daysOpen: 10 },
+// 15. Sales Activities
+export const mockSalesActivities: SalesActivity[] = [
+    { id: 'sa-1', type: 'CALL', title: 'Call with TechStart', user: { name: 'Priya Patel', avatar: 'PP' }, details: 'Discussed pricing and delivery timeline.', timestamp: '2 hours ago', relatedCustomer: { id: 'CUST-001', name: 'Arjun Sharma' } },
+    { id: 'sa-2', type: 'EMAIL', title: 'Proposal Sent to GreenLeaf', user: { name: 'Rohan Kumar', avatar: 'RK' }, details: 'Sent updated proposal v2.', timestamp: '5 hours ago', relatedCustomer: { id: 'CUST-002', name: 'Priya Patel' } },
+    { id: 'sa-3', type: 'MEETING', title: 'Demo with BlueSky', user: { name: 'Ananya Singh', avatar: 'AS' }, details: 'Product demo via Zoom.', timestamp: '1 day ago' },
+    { id: 'sa-4', type: 'TASK', title: 'Follow up on contract', user: { name: 'Priya Patel', avatar: 'PP' }, details: 'Contract pending signature.', timestamp: '2 days ago' },
+    { id: 'sa-5', type: 'DEAL_WON', title: 'Closed RedRock Deal', user: { name: 'Priya Patel', avatar: 'PP' }, details: 'Deal value: ₹8,50,000', timestamp: '3 days ago' },
 ];
 
-// FIX: Add missing rfmSegments mock data.
-export const rfmSegments = [
-    {
-      name: "Champions",
-      description: "Your best customers. They buy often and spend the most.",
-      color: "from-green-400 to-green-600",
-      bgColor: "bg-green-50 dark:bg-green-900/20",
-      textColor: "text-green-600",
-      percentage: 15,
-      count: 185,
-      avgSpend: 45000,
-      avgFrequency: 12,
-      lastPurchaseAvg: 15,
+// 16. Sales Tasks
+export const mockSalesTasks: SalesTask[] = [
+    { id: 'st-1', title: 'Call TechStart', description: 'Follow up on pricing negotiation', dueDate: '2024-07-26', priority: 'High', status: 'Open', assignee: 'Priya Patel', relatedLead: 'TechStart Inc.' },
+    { id: 'st-2', title: 'Prepare GreenLeaf Proposal', description: 'Draft proposal v3 based on feedback', dueDate: '2024-07-27', priority: 'Medium', status: 'Open', assignee: 'Rohan Kumar', relatedLead: 'GreenLeaf Co.' },
+    { id: 'st-3', title: 'Email BlueSky', description: 'Send product catalog', dueDate: '2024-07-25', priority: 'Low', status: 'Overdue', assignee: 'Ananya Singh', relatedLead: 'BlueSky Ltd.' },
+    { id: 'st-4', title: 'Sign RedRock Contract', description: 'Get final signature', dueDate: '2024-07-24', priority: 'High', status: 'Completed', assignee: 'Priya Patel', relatedLead: 'RedRock LLC', completedBy: 'u_001', completedByName: 'Priya Patel', completedAt: '2024-07-24T10:00:00Z' },
+];
+
+// 17. Team Members
+export const mockTeamMembers: TeamMember[] = [
+    { id: 'TM-001', name: 'Priya Patel', avatar: 'PP', dealsClosed: 15, revenue: 1850000, role: 'Sales Manager', email: 'priya@company.com' },
+    { id: 'TM-002', name: 'Rohan Kumar', avatar: 'RK', dealsClosed: 8, revenue: 750000, role: 'Sales Executive', email: 'rohan@company.com' },
+    { id: 'TM-003', name: 'Ananya Singh', avatar: 'AS', dealsClosed: 5, revenue: 420000, role: 'Sales Executive', email: 'ananya@company.com' },
+];
+
+// 18. Coupons
+export const mockCoupons: Coupon[] = [
+    { 
+        id: 'C-001', 
+        code: "SUMMER25", 
+        name: "Summer Sale", 
+        discountType: "Percentage", 
+        value: 25, 
+        usageCount: 345, 
+        usageLimit: 1000, 
+        validFrom: "2024-06-01", 
+        validUntil: "2024-08-31", 
+        status: "Active", 
+        revenueGenerated: 845000, 
+        channels: ["Email", "Social"], 
+        audience: "All Customers",
+        createdAt: "2024-05-20",
+        createdBy: "Priya Patel"
     },
-    {
-      name: "Loyal Customers",
-      description: "Consistent buyers. Nurture them for growth.",
-      color: "from-blue-400 to-blue-600",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      textColor: "text-blue-600",
-      percentage: 25,
-      count: 310,
-      avgSpend: 28000,
-      avgFrequency: 6,
-      lastPurchaseAvg: 45,
+    { 
+        id: 'C-002', 
+        code: "FREESHIP", 
+        name: "Free Shipping", 
+        discountType: "Free Shipping", 
+        value: 0, 
+        usageCount: 892, 
+        usageLimit: 999999, 
+        validFrom: "2024-01-01", 
+        validUntil: "2024-12-31", 
+        status: "Active", 
+        revenueGenerated: 1523000, 
+        channels: ["All"], 
+        audience: "All Customers",
+        createdAt: "2024-01-01",
+        createdBy: "Admin"
     },
-    {
-      name: "At Risk",
-      description: "High value, but haven't purchased in a while. Needs re-engagement.",
-      color: "from-yellow-400 to-yellow-600",
-      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
-      textColor: "text-yellow-600",
-      percentage: 18,
-      count: 223,
-      avgSpend: 32000,
-      avgFrequency: 5,
-      lastPurchaseAvg: 120,
+    { 
+        id: 'C-003', 
+        code: "WELCOME10", 
+        name: "New User Offer", 
+        discountType: "Percentage", 
+        value: 10, 
+        usageCount: 1567, 
+        usageLimit: 999999, 
+        validFrom: "2024-01-01", 
+        validUntil: "2024-12-31", 
+        status: "Active", 
+        revenueGenerated: 1289000, 
+        channels: ["Email", "Website"], 
+        audience: "New Customers",
+        createdAt: "2024-01-01",
+        createdBy: "Admin"
     },
-    {
-      name: "Lost",
-      description: "Customers who have churned. Minimal engagement.",
-      color: "from-red-400 to-red-600",
-      bgColor: "bg-red-50 dark:bg-red-900/20",
-      textColor: "text-red-600",
-      percentage: 12,
-      count: 148,
-      avgSpend: 15000,
-      avgFrequency: 2,
-      lastPurchaseAvg: 380,
+    { 
+        id: 'C-004', 
+        code: "BOGO50", 
+        name: "BOGO Deal", 
+        discountType: "Buy X Get Y", 
+        value: 50, 
+        usageCount: 234, 
+        usageLimit: 500, 
+        validFrom: "2024-10-01", 
+        validUntil: "2024-10-31", 
+        status: "Scheduled", 
+        revenueGenerated: 567000, 
+        channels: ["Social"], 
+        audience: "All Customers",
+        createdAt: "2024-09-15",
+        createdBy: "Ananya Singh"
     },
-];
-
-// Data from pages
-
-export const mockDashboardRevenueData = [
-    { name: 'Jan', revenue: 40000, goal: 50000 },
-    { name: 'Feb', revenue: 30000, goal: 50000 },
-    { name: 'Mar', revenue: 50000, goal: 52000 },
-    { name: 'Apr', revenue: 45000, goal: 55000 },
-    { name: 'May', revenue: 60000, goal: 58000 },
-    { name: 'Jun', revenue: 55000, goal: 60000 },
-    { name: 'Jul', revenue: 75000, goal: 65000 },
-];
-  
-export const mockDashboardAcquisitionData = [
-      { name: 'Organic', value: 45, color: '#3B82F6' },
-      { name: 'Paid Ads', value: 25, color: '#10B981' },
-      { name: 'Social', value: 20, color: '#F59E0B' },
-      { name: 'Referral', value: 10, color: '#8B5CF6' },
-];
-  
-export const mockDashboardFunnelData = [
-      { name: 'Purchase', value: 1247 },
-      { name: 'Checkout', value: 2105 },
-      { name: 'Add to Cart', value: 3560 },
-      { name: 'Visitors', value: 15230 },
-];
-  
-export const mockDashboardTopProducts = [
-    { name: 'Wireless Headphones', sales: 1240, revenue: 3100000 },
-    { name: 'Smart Watch Pro', sales: 890, revenue: 2670000 },
-    { name: 'USB-C Hub Adapter', sales: 650, revenue: 1300000 },
-];
-  
-export const mockDashboardRecentOrders = [
-    { id: 'ORD-001', customer: 'Arjun Sharma', status: 'Delivered', amount: 24999 },
-    { id: 'ORD-002', customer: 'Priya Patel', status: 'Processing', amount: 18950 },
-    { id: 'ORD-003', customer: 'Rohan Kumar', status: 'Pending', amount: 45000 },
-    { id: 'ORD-004', customer: 'Ananya Singh', status: 'Cancelled', amount: 29999 },
+    { 
+        id: 'C-005', 
+        code: "FLASH50", 
+        name: "Flash Sale", 
+        discountType: "Percentage", 
+        value: 50, 
+        usageCount: 150, 
+        usageLimit: 150, 
+        validFrom: "2024-10-15", 
+        validUntil: "2024-10-15", 
+        status: "Expired", 
+        revenueGenerated: 345000, 
+        channels: ["Email", "SMS"], 
+        audience: "VIP",
+        createdAt: "2024-10-01",
+        createdBy: "Rohan Kumar"
+    },
+    { 
+        id: 'C-006', 
+        code: "VIP20", 
+        name: "VIP Exclusive", 
+        discountType: "Percentage", 
+        value: 20, 
+        usageCount: 89, 
+        usageLimit: 500, 
+        validFrom: "2024-01-01", 
+        validUntil: "2024-12-31", 
+        status: "Active", 
+        revenueGenerated: 423000, 
+        channels: ["Email", "WhatsApp"], 
+        audience: "VIP",
+        createdAt: "2024-01-01",
+        createdBy: "Priya Patel"
+    },
+    { 
+        id: 'C-007', 
+        code: "NEWCUST15", 
+        name: "Acquisition", 
+        discountType: "Flat Amount", 
+        value: 1500, 
+        usageCount: 445, 
+        usageLimit: 1000, 
+        validFrom: "2024-07-01", 
+        validUntil: "2024-12-31", 
+        status: "Active", 
+        revenueGenerated: 667500, 
+        channels: ["Social"], 
+        audience: "New Customers",
+        createdAt: "2024-06-25",
+        createdBy: "Ananya Singh"
+    },
 ];

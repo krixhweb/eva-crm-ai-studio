@@ -23,7 +23,7 @@ const CustomerDirectoryPage: React.FC = () => {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   
   const actionMenuRef = useRef<HTMLDivElement>(null);
-  const itemsPerPage = 8;
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
-import { Icon } from '../icons/Icon';
+import { Icon } from '../shared/Icon';
 
 const statusBadgeVariants = cva(
   'inline-flex items-center gap-1.5 text-sm font-medium',

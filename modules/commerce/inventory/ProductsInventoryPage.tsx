@@ -1,41 +1,80 @@
 
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { InventoryDashboard } from './components/InventoryDashboard';
 import { ProductCatalog } from './components/ProductCatalog';
 import CreateProductModal from '../../../components/modals/CreateProductModal';
-import ReorderModal, { ReplenishmentOrderPayload } from '../../../components/modals/ReorderModal';
-import { mockProducts } from '../../../data/inventoryMockData';
+import CreateReplenishmentOrderDrawer, { ReplenishmentOrderPayload } from '../../../components/modals/CreateReplenishmentOrderDrawer';
 import type { Product } from '../../../types';
-import { useToast } from '../../../hooks/use-toast';
+import { useGlassyToasts } from '../../../components/ui/GlassyToastProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/Tabs';
+import { addProduct, updateProduct, deleteProduct } from '../../../store/inventorySlice';
+import type { RootState } from '../../../store/store';
+import ConfirmationDialog from '../../../components/modals/ConfirmationDialog';
 
 const ProductsInventoryPage: React.FC = () => {
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
+    const dispatch = useDispatch();
     const location = useLocation();
-    const defaultTab = location.state?.defaultTab || 'dashboard';
+    // Type assertion for state to avoid TS errors if location.state is unknown
+    const state = location.state as { defaultTab?: string } | undefined;
+    const defaultTab = state?.defaultTab || 'dashboard';
     
-    const [products, setProducts] = useState<Product[]>(mockProducts);
+    const products = useSelector((state: RootState) => state.inventory.products);
+    
     const [isCreateOpen, setCreateOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [reorderProduct, setReorderProduct] = useState<Product | null>(null);
+    const [deleteProductTarget, setDeleteProductTarget] = useState<Product | null>(null);
 
-    const handleSaveProduct = (product: Product) => {
-        const exists = products.find(p => p.id === product.id);
-        if (exists) {
-            setProducts(prev => prev.map(p => p.id === product.id ? product : p));
-            toast({ title: "Product Updated", description: `${product.name} has been updated.` });
+    const handleSaveProduct = (productData: Product) => {
+        if (editingProduct) {
+            dispatch(updateProduct(productData));
+            push({ title: "Product Updated", description: `${productData.name} has been updated.`, variant: "success" });
         } else {
-            setProducts(prev => [product, ...prev]);
-            toast({ title: "Product Created", description: `${product.name} has been added.` });
+            // Ensure history is initialized
+            const newProduct = {
+                ...productData,
+                history: [{
+                    id: `h_${Date.now()}`,
+                    action: 'Product Created',
+                    actor: 'Current User',
+                    date: new Date().toISOString(),
+                    details: 'Initial creation via catalog'
+                }]
+            };
+            dispatch(addProduct(newProduct));
+            push({ title: "Product Created", description: `${productData.name} has been added to catalog.`, variant: "success" });
         }
         setCreateOpen(false);
+        setIsEditOpen(false);
+        setEditingProduct(null);
+    };
+
+    const handleEditProduct = (product: Product) => {
+        setEditingProduct(product);
+        setIsEditOpen(true);
+    };
+
+    const handleDeleteProduct = (product: Product) => {
+        setDeleteProductTarget(product);
+    };
+
+    const confirmDelete = () => {
+        if (deleteProductTarget) {
+            dispatch(deleteProduct(deleteProductTarget.id));
+            push({ title: "Product Deleted", description: `${deleteProductTarget.name} removed.`, variant: "error" });
+            setDeleteProductTarget(null);
+        }
     };
 
     const handleReorderSubmit = (orderData: ReplenishmentOrderPayload) => {
-        console.log("NEW REPLENISHMENT ORDER", orderData);
-        toast({ 
-            title: "Purchase Order Created", 
-            description: `Order ${orderData.orderId} for ${orderData.productName} initiated.` 
+        push({ 
+            title: "Restock Initiated", 
+            description: `Replenishment Order ${orderData.id} created for ${orderData.productName}.`,
+            variant: "info"
         });
         setReorderProduct(null);
     };
@@ -63,26 +102,49 @@ const ProductsInventoryPage: React.FC = () => {
                 <TabsContent value="catalog" className="space-y-6">
                     <ProductCatalog 
                         products={products} 
-                        onAddProduct={() => setCreateOpen(true)} 
+                        onAddProduct={() => { setEditingProduct(null); setCreateOpen(true); }}
+                        onEditProduct={handleEditProduct}
+                        onDeleteProduct={handleDeleteProduct}
                     />
                 </TabsContent>
             </Tabs>
 
-            <CreateProductModal 
-                isOpen={isCreateOpen} 
-                onClose={() => setCreateOpen(false)} 
-                onSave={handleSaveProduct}
-                product={null} 
-            />
-
-            {reorderProduct && (
-                <ReorderModal 
-                    isOpen={!!reorderProduct} 
-                    onClose={() => setReorderProduct(null)} 
-                    onSubmit={handleReorderSubmit} 
-                    product={reorderProduct} 
+            {/* Create Modal */}
+            {isCreateOpen && (
+                <CreateProductModal 
+                    isOpen={isCreateOpen} 
+                    onClose={() => setCreateOpen(false)} 
+                    onSave={handleSaveProduct}
+                    product={null} 
                 />
             )}
+
+            {/* Edit Modal */}
+            {isEditOpen && editingProduct && (
+                <CreateProductModal 
+                    isOpen={isEditOpen} 
+                    onClose={() => { setIsEditOpen(false); setEditingProduct(null); }} 
+                    onSave={handleSaveProduct}
+                    product={editingProduct} 
+                />
+            )}
+
+            {/* Replenishment Drawer (Replaces ReorderModal) */}
+            <CreateReplenishmentOrderDrawer
+                open={!!reorderProduct}
+                onOpenChange={(open) => !open && setReorderProduct(null)}
+                product={reorderProduct}
+                onSave={handleReorderSubmit}
+            />
+
+            {/* Delete Dialog */}
+            <ConfirmationDialog 
+                isOpen={!!deleteProductTarget}
+                onClose={() => setDeleteProductTarget(null)}
+                onConfirm={confirmDelete}
+                title="Delete Product"
+                description={`Are you sure you want to delete ${deleteProductTarget?.name}? This action cannot be undone.`}
+            />
         </div>
     );
 };

@@ -10,13 +10,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../../../../components/ui/DropdownMenu";
 import type { Product } from "../../../../types";
 import { ProductFilterDrawer } from "./ProductFilterDrawer";
+import { formatCurrency } from "../../../../lib/utils";
 
-export const ProductCatalog = ({ products, onAddProduct }: { products: Product[], onAddProduct: () => void }) => {
+interface ProductCatalogProps {
+    products: Product[];
+    onAddProduct: () => void;
+    onEditProduct: (product: Product) => void;
+    onDeleteProduct: (product: Product) => void;
+}
+
+export const ProductCatalog: React.FC<ProductCatalogProps> = ({ 
+    products, 
+    onAddProduct, 
+    onEditProduct, 
+    onDeleteProduct 
+}) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const navigate = useNavigate();
 
-    // Simple filter state (in a real app, this would be more complex)
     const [activeFilters, setActiveFilters] = useState({
         categories: [] as string[],
         status: 'All',
@@ -26,6 +38,16 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
     });
 
     const uniqueCategories = useMemo(() => Array.from(new Set(products.map(p => p.category))), [products]);
+
+    const parseFilterDate = (dateStr: string): Date | null => {
+        if (!dateStr) return null;
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return null;
+        const d = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const y = parseInt(parts[2], 10);
+        return new Date(y, m, d);
+    };
 
     const filteredProducts = useMemo(() => {
         const lowerSearch = searchTerm.toLowerCase();
@@ -41,14 +63,44 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
             // Status Filter
             const matchesStatus = activeFilters.status === 'All' || p.status === activeFilters.status;
 
-            // Warehouse Filter (Check if product has stock in specific warehouse)
-            const matchesWarehouse = activeFilters.warehouse === 'All' || p.locations.some(l => l.locationId === activeFilters.warehouse && l.stock > 0);
+            // Warehouse Filter - Updated to use inventoryByLocation
+            const matchesWarehouse = activeFilters.warehouse === 'All' || p.inventoryByLocation.some(l => l.locationId === activeFilters.warehouse && l.stock > 0);
 
-            return matchesSearch && matchesCategory && matchesStatus && matchesWarehouse;
+            // Date Filter
+            let matchesDate = true;
+            if (activeFilters.dateFrom || activeFilters.dateTo) {
+                const pDate = new Date(p.lastUpdated || p.createdAt || '1970-01-01');
+                pDate.setHours(0, 0, 0, 0); 
+
+                if (activeFilters.dateFrom) {
+                    const fromDate = parseFilterDate(activeFilters.dateFrom);
+                    if (fromDate) {
+                        fromDate.setHours(0, 0, 0, 0);
+                        if (pDate < fromDate) matchesDate = false;
+                    }
+                }
+                
+                if (activeFilters.dateTo && matchesDate) {
+                    const toDate = parseFilterDate(activeFilters.dateTo);
+                    if (toDate) {
+                        toDate.setHours(23, 59, 59, 999); 
+                        const pDateCheck = new Date(p.lastUpdated || p.createdAt || '1970-01-01');
+                        pDateCheck.setHours(0,0,0,0);
+                        
+                        if (pDateCheck > toDate) matchesDate = false;
+                    }
+                }
+            }
+
+            return matchesSearch && matchesCategory && matchesStatus && matchesWarehouse && matchesDate;
         });
     }, [products, searchTerm, activeFilters]);
 
-    const activeFilterCount = activeFilters.categories.length + (activeFilters.status !== 'All' ? 1 : 0) + (activeFilters.warehouse !== 'All' ? 1 : 0);
+    const activeFilterCount = 
+        activeFilters.categories.length + 
+        (activeFilters.status !== 'All' ? 1 : 0) + 
+        (activeFilters.warehouse !== 'All' ? 1 : 0) +
+        (activeFilters.dateFrom || activeFilters.dateTo ? 1 : 0);
 
     return (
         <>
@@ -75,9 +127,9 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                     </span>
                                 )}
                             </Button>
-                            <Button className="gap-2" onClick={onAddProduct}>
+                            <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={onAddProduct}>
                                 <Icon name="plus" className="h-4 w-4" />
-                                Add Product
+                                Create Product
                             </Button>
                         </div>
                     </div>
@@ -90,6 +142,7 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                     <TableHead className="w-[60px]">Image</TableHead>
                                     <TableHead>Product Name & SKU</TableHead>
                                     <TableHead>Category</TableHead>
+                                    <TableHead className="text-right">Price</TableHead>
                                     <TableHead className="text-right">Total Stock</TableHead>
                                     <TableHead className="text-center">Status</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -104,7 +157,7 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                     >
                                         <TableCell>
                                             <div className="h-10 w-10 rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden border dark:border-gray-700">
-                                                {p.images[0] ? (
+                                                {p.images && p.images[0] ? (
                                                     <img src={p.images[0]} alt={p.name} className="h-full w-full object-cover" />
                                                 ) : (
                                                     <Icon name="image" className="h-5 w-5 text-gray-400" />
@@ -120,11 +173,16 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                         <TableCell>
                                             <Badge variant="outline" className="font-normal">{p.category}</Badge>
                                         </TableCell>
+                                        <TableCell className="text-right font-medium">
+                                            {formatCurrency(p.pricing.sellingPrice)}
+                                        </TableCell>
                                         <TableCell className="text-right font-medium text-gray-700 dark:text-gray-300">
-                                            {p.stock} units
+                                            {p.totalStock} units
                                         </TableCell>
                                         <TableCell className="text-center">
-                                            <Badge variant={p.status === 'Active' ? 'green' : 'gray'}>{p.status}</Badge>
+                                            <Badge variant={p.status === 'Active' ? 'green' : p.status === 'Draft' ? 'yellow' : 'gray'}>
+                                                {p.status}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div onClick={(e) => e.stopPropagation()}>
@@ -135,9 +193,15 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => navigate(`/commerce/products/${p.id}`)}>View Details</DropdownMenuItem>
-                                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => navigate(`/commerce/products/${p.id}`)}>
+                                                            <Icon name="fileText" className="w-4 h-4 mr-2" /> View Details
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => onEditProduct(p)}>
+                                                            <Icon name="edit" className="w-4 h-4 mr-2" /> Edit Product
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => onDeleteProduct(p)}>
+                                                            <Icon name="close" className="w-4 h-4 mr-2" /> Delete Product
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </div>
@@ -146,7 +210,7 @@ export const ProductCatalog = ({ products, onAddProduct }: { products: Product[]
                                 ))}
                                 {filteredProducts.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-12 text-gray-500">
+                                        <TableCell colSpan={7} className="text-center py-12 text-gray-500">
                                             <div className="flex flex-col items-center gap-2">
                                                 <Icon name="search" className="h-8 w-8 opacity-20" />
                                                 <p>No products found matching your filters.</p>

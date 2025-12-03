@@ -6,6 +6,7 @@ import { motion, HTMLMotionProps } from 'framer-motion';
 interface CardProps extends HTMLMotionProps<"div"> {
     className?: string;
     children?: React.ReactNode;
+    onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(

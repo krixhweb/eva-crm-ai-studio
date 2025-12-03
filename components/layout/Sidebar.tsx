@@ -1,12 +1,37 @@
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleSidebar, setBreadcrumb, setSidebarOpen } from '../../store/uiSlice';
+import { toggleSidebar, setBreadcrumb, setSidebarWidth, setSidebarOpen } from '../../store/uiSlice';
 import type { RootState } from '../../store/store';
 import { Icon } from '../shared/Icon';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../../lib/utils';
 
-const navGroups = [
+interface SubItem {
+    label: string;
+    path: string;
+    icon: string;
+    breadcrumb: string[];
+}
+
+interface NavItem {
+    label: string;
+    path: string;
+    icon: string;
+    breadcrumb: string[];
+    new?: boolean;
+    subItems?: SubItem[];
+}
+
+interface NavGroup {
+    title: string;
+    icon: string;
+    defaultOpen: boolean;
+    items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
   {
     title: '360° Overview',
     icon: 'analytics',
@@ -20,19 +45,27 @@ const navGroups = [
   {
     title: 'Marketing',
     icon: 'megaphone',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Campaigns Management', path: '/marketing/campaigns', icon: 'megaphone', breadcrumb: ['Marketing', 'Campaigns Management'] },
-      { label: 'Email Marketing', path: '/marketing/email', icon: 'mail', breadcrumb: ['Marketing', 'Email Marketing'] },
-      { label: 'Social Content', path: '/marketing/social', icon: 'share', breadcrumb: ['Marketing', 'Social Content'] },
-      { label: 'A/B Testing', path: '/marketing/ab-testing', icon: 'zap', breadcrumb: ['Marketing', 'A/B Testing'] },
+      { 
+          label: 'Channel Marketing', 
+          path: '#', 
+          icon: 'send', 
+          breadcrumb: ['Marketing', 'Channel Marketing'],
+          subItems: [
+              { label: 'Email Marketing', path: '/marketing/channel/email', icon: 'mail', breadcrumb: ['Marketing', 'Channel Marketing', 'Email'] },
+              { label: 'WhatsApp Marketing', path: '/marketing/channel/whatsapp', icon: 'messageCircle', breadcrumb: ['Marketing', 'Channel Marketing', 'WhatsApp'] },
+              { label: 'Social Publisher', path: '/marketing/channel/social', icon: 'share', breadcrumb: ['Marketing', 'Channel Marketing', 'Social'] },
+          ]
+      },
       { label: 'Coupon Management', path: '/marketing/coupons', icon: 'ticket', breadcrumb: ['Marketing', 'Coupon Management'] },
     ],
   },
   {
     title: 'Sales',
     icon: 'dollarSign',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Leads Pipeline', path: '/sales/pipeline', icon: 'pipeline', breadcrumb: ['Sales', 'Leads Pipeline'] },
       { label: 'Performance & Activity', path: '/sales/analytics', icon: 'analytics', breadcrumb: ['Sales', 'Performance & Activity'] },
@@ -41,7 +74,7 @@ const navGroups = [
   {
     title: 'Commerce',
     icon: 'shoppingCart',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Products & Inventory', path: '/commerce/products', icon: 'package', breadcrumb: ['Commerce', 'Products & Inventory'] },
       { label: 'Orders Management', path: '/commerce/orders', icon: 'shoppingCart', breadcrumb: ['Commerce', 'Orders Management'] },
@@ -51,7 +84,7 @@ const navGroups = [
   {
     title: 'Support',
     icon: 'lifeBuoy',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Ticket Management', path: '/support/tickets', icon: 'ticket', breadcrumb: ['Support', 'Ticket Management'] },
       { label: 'Returns & Refunds', path: '/support/returns', icon: 'lifeBuoy', breadcrumb: ['Support', 'Returns & Refunds'] },
@@ -61,7 +94,7 @@ const navGroups = [
   {
     title: 'Automation',
     icon: 'zap',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Workflow Builder', path: '/automation/workflows', icon: 'workflow', breadcrumb: ['Automation', 'Workflow Builder'] },
       { label: 'Marketing Automation', path: '/automation/marketing', icon: 'megaphone', breadcrumb: ['Automation', 'Marketing Automation'] },
@@ -71,7 +104,7 @@ const navGroups = [
   {
     title: 'Settings',
     icon: 'settings',
-    defaultOpen: true,
+    defaultOpen: false,
     items: [
       { label: 'Integrations', path: '/settings/integrations', icon: 'settings', breadcrumb: ['Settings', 'Integrations'] },
       { label: 'Admin & Security', path: '/settings/admin', icon: 'settings', breadcrumb: ['Settings', 'Admin & Security'] },
@@ -80,191 +113,375 @@ const navGroups = [
   },
 ];
 
-const MIN_WIDTH = 180;
-const MAX_WIDTH = 230; // Reduced max width
-const DEFAULT_WIDTH = 220;
+const MIN_WIDTH = 200;
+const MAX_WIDTH = 480;
 const COLLAPSED_WIDTH = 64;
-const COLLAPSE_THRESHOLD = 50; // Slightly reduced threshold for easier opening
 
 const Sidebar: React.FC = () => {
-  const isSidebarOpen = useSelector((state: RootState) => state.ui.isSidebarOpen);
+  const { isSidebarOpen, sidebarWidth } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
   const location = useLocation();
-  const sidebarRef = useRef<HTMLElement>(null);
   
-  const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
-  const [isResizing, setIsResizing] = useState(false);
-
-  const [openGroups, setOpenGroups] = useState(() => 
-    navGroups.reduce((acc: Record<string, boolean>, group) => {
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => 
+    navGroups.reduce((acc, group) => {
         acc[group.title] = group.defaultOpen || false;
         return acc;
-    }, {})
+    }, {} as Record<string, boolean>)
+  );
+
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [isResizing, setIsResizing] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  // --- Resizing Logic ---
+  const startResizing = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  const resize = useCallback(
+    (mouseMoveEvent: MouseEvent) => {
+      if (isResizing) {
+        const newWidth = mouseMoveEvent.clientX;
+        
+        // Snap to closed if dragged too small
+        if (newWidth < 150) {
+             if (isSidebarOpen) dispatch(setSidebarOpen(false));
+             return;
+        }
+
+        // Open if dragged out
+        if (!isSidebarOpen && newWidth > 150) {
+            dispatch(setSidebarOpen(true));
+        }
+
+        if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
+          dispatch(setSidebarWidth(newWidth));
+        }
+      }
+    },
+    [isResizing, isSidebarOpen, dispatch]
   );
 
   useEffect(() => {
-    let activeItem;
-    
+    if (isResizing) {
+        window.addEventListener("mousemove", resize);
+        window.addEventListener("mouseup", stopResizing);
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none'; // Prevent text selection
+    } else {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stopResizing);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    }
+    return () => {
+        window.removeEventListener("mousemove", resize);
+        window.removeEventListener("mouseup", stopResizing);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+    };
+  }, [isResizing, resize, stopResizing]);
+
+  // --- Auto-expand Logic ---
+  useEffect(() => {
+    let activeGroupTitle = '';
+    let activeItemLabel = '';
+
     for (const group of navGroups) {
-      const foundItem = group.items.find(item => item.path === location.pathname);
-      if (foundItem) {
-        activeItem = foundItem;
-        break;
+      for (const item of group.items) {
+          if (item.path === location.pathname) {
+              activeGroupTitle = group.title;
+              break;
+          }
+          if (item.subItems) {
+              const activeSub = item.subItems.find(sub => sub.path === location.pathname);
+              if (activeSub) {
+                  activeGroupTitle = group.title;
+                  activeItemLabel = item.label;
+                  dispatch(setBreadcrumb(activeSub.breadcrumb));
+                  break;
+              }
+          }
+          if (item.path === location.pathname) {
+             dispatch(setBreadcrumb(item.breadcrumb));
+          }
       }
+      if (activeGroupTitle) break;
     }
 
-    if (activeItem) {
-      dispatch(setBreadcrumb(activeItem.breadcrumb));
+    if (activeGroupTitle && !openGroups[activeGroupTitle]) {
+      setOpenGroups(Object.keys(openGroups).reduce((acc, key) => {
+        acc[key] = key === activeGroupTitle;
+        return acc;
+      }, {} as Record<string, boolean>));
+    }
+    
+    if (activeItemLabel) {
+        setExpandedItems(prev => ({ ...prev, [activeItemLabel]: true }));
     }
   }, [location.pathname, dispatch]);
 
   const handleGroupToggle = (title: string) => {
     if (!isSidebarOpen) {
-      dispatch(toggleSidebar());
-      setOpenGroups(prev => ({ ...prev, [title]: true }));
+      dispatch(setSidebarOpen(true));
+      setOpenGroups(Object.keys(openGroups).reduce((acc, key) => {
+         acc[key] = key === title;
+         return acc;
+       }, {} as Record<string, boolean>));
     } else {
-      setOpenGroups(prev => ({ ...prev, [title]: !prev[title] }));
+      setOpenGroups(prev => {
+        const isClosing = prev[title];
+        if (isClosing) {
+            return { ...prev, [title]: false };
+        } else {
+             return Object.keys(prev).reduce((acc, key) => {
+                 acc[key] = key === title;
+                 return acc;
+             }, {} as Record<string, boolean>);
+        }
+      });
     }
   };
 
-  // Resizing Logic
-  const startResizing = useCallback(() => {
-    setIsResizing(true);
-    // If starting drag from collapsed state, set width to collapsed width 
-    // to prevent visual jumping to previous expanded width
-    if (!isSidebarOpen) {
-        setSidebarWidth(COLLAPSED_WIDTH);
-    }
-  }, [isSidebarOpen]);
-
-  const stopResizing = useCallback(() => {
-    setIsResizing(false);
-    // If left in an "in-between" state (open but too narrow), snap to min width
-    if (isSidebarOpen && sidebarWidth < MIN_WIDTH) {
-        setSidebarWidth(MIN_WIDTH);
-    }
-  }, [isSidebarOpen, sidebarWidth]);
-
-  const resize = useCallback(
-    (event: MouseEvent | TouchEvent) => {
-      if (isResizing && sidebarRef.current) {
-        let clientX;
-        if ('touches' in event) {
-           clientX = event.touches[0].clientX;
-        } else {
-           clientX = (event as MouseEvent).clientX;
-        }
-
-        const newWidth = clientX - sidebarRef.current.getBoundingClientRect().left;
-        
-        // Logic to toggle Open/Closed based on dragging threshold
-        if (newWidth < COLLAPSE_THRESHOLD) {
-            if (isSidebarOpen) dispatch(setSidebarOpen(false));
-        } else {
-            if (!isSidebarOpen) dispatch(setSidebarOpen(true));
-        }
-
-        // Update visual width clamped between bounds
-        // Allow it to go down to COLLAPSED_WIDTH during drag for smoothness
-        const clampedWidth = Math.max(COLLAPSED_WIDTH, Math.min(newWidth, MAX_WIDTH));
-        setSidebarWidth(clampedWidth);
+  const handleItemExpand = (e: React.MouseEvent, label: string) => {
+      e.preventDefault();
+      if (!isSidebarOpen) {
+          dispatch(setSidebarOpen(true));
+          setExpandedItems(prev => ({ ...prev, [label]: true }));
+      } else {
+          setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
       }
-    },
-    [isResizing, dispatch, isSidebarOpen]
-  );
+  };
 
-  useEffect(() => {
-    window.addEventListener("mousemove", resize);
-    window.addEventListener("mouseup", stopResizing);
-    window.addEventListener("touchmove", resize);
-    window.addEventListener("touchend", stopResizing);
-    return () => {
-      window.removeEventListener("mousemove", resize);
-      window.removeEventListener("mouseup", stopResizing);
-      window.removeEventListener("touchmove", resize);
-      window.removeEventListener("touchend", stopResizing);
-    };
-  }, [resize, stopResizing]);
-
+  // Calculate the actual width to render
+  const currentWidth = isSidebarOpen ? sidebarWidth : COLLAPSED_WIDTH;
 
   return (
     <>
       {/* Overlay for mobile when expanded */}
       <div 
-        className={`fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-        onClick={() => dispatch(toggleSidebar())}
+        className={cn(
+            "fixed inset-0 bg-black/50 z-30 md:hidden transition-opacity duration-300",
+            isSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={() => dispatch(setSidebarOpen(false))}
       ></div>
       
-      <aside
-        ref={sidebarRef}
-        // Use dynamic width if open OR if resizing (allows dragging out from collapsed state)
-        style={{ width: isSidebarOpen || isResizing ? sidebarWidth : COLLAPSED_WIDTH }}
-        className={`flex flex-col z-40 fixed md:relative h-full bg-white dark:bg-[#09090b] flex-shrink-0 relative group border-r border-gray-200 dark:border-gray-800
-        ${isResizing ? 'transition-none select-none' : 'transition-all duration-300 ease-in-out'}
-        translate-x-0
-        `}
+      <motion.aside
+        ref={sidebarRef as any}
+        {...({
+            animate: { width: currentWidth },
+            transition: { type: "spring", stiffness: 400, damping: 30 }
+        } as any)}
+        className={cn(
+            "flex flex-col z-40 fixed md:relative h-full bg-white dark:bg-[#09090b] flex-shrink-0 border-r border-gray-200 dark:border-zinc-800 shadow-xl md:shadow-none group/sidebar",
+            isResizing ? "transition-none" : "transition-width" // Disable transition during drag for 1:1 tracking
+        )}
       >
-        {/* Resizer Handle - Always rendered to allow drag-to-open */}
+        {/* --- Resizer Handle --- */}
         <div
-            className="absolute right-0 top-0 w-1.5 h-full cursor-col-resize z-50 bg-transparent hover:bg-green-500/10 transition-colors"
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 transition-colors z-50 opacity-0 hover:opacity-100 group-hover/sidebar:opacity-50 active:bg-blue-600 active:opacity-100"
             onMouseDown={startResizing}
-            onTouchStart={startResizing}
+            title="Drag to resize"
         />
 
-        <div className={`p-4 flex items-center h-16 ${isSidebarOpen ? 'justify-start' : 'justify-center'}`}>
-            <Icon name="sparkles" className="w-8 h-8 text-green-500 flex-shrink-0" />
-            <span className={`text-2xl font-extrabold text-green-500 ml-2 whitespace-nowrap overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>EVA CRM</span>
+        {/* Header */}
+        <div className={cn("p-5 flex items-center h-16 border-b border-gray-100 dark:border-zinc-800 overflow-hidden", isSidebarOpen ? "justify-start" : "justify-center")}>
+            <Icon name="sparkles" className="w-7 h-7 text-green-600 flex-shrink-0" />
+            {isSidebarOpen && (
+                <motion.span 
+                    {...({
+                        initial: { opacity: 0, x: -10 },
+                        animate: { opacity: 1, x: 0 },
+                        transition: { delay: 0.1 }
+                    } as any)}
+                    className="text-xl font-bold text-gray-900 dark:text-white ml-3 tracking-tight whitespace-nowrap"
+                >
+                    EVA CRM
+                </motion.span>
+            )}
         </div>
         
-        <nav className="flex-1 p-2 overflow-y-auto overflow-x-hidden space-y-2 scrollbar-hide">
+        {/* Navigation Items */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto overflow-x-hidden space-y-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-zinc-800">
           {navGroups.map(group => (
-            <div key={group.title}>
+            <div key={group.title} className="mb-1">
               <button
                 onClick={() => handleGroupToggle(group.title)}
                 title={isSidebarOpen ? '' : group.title}
-                className={`w-full flex items-center p-2 rounded-lg text-sm font-semibold text-gray-500 dark:text-dark-muted hover:bg-black/5 dark:hover:bg-dark-surfaceHover transition-colors ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}
-                aria-expanded={openGroups[group.title]}
+                className={cn(
+                    "w-full flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group",
+                    openGroups[group.title] 
+                        ? "text-gray-900 dark:text-white bg-gray-100/80 dark:bg-zinc-800/80" 
+                        : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-800/50 hover:text-gray-900 dark:hover:text-gray-200",
+                    isSidebarOpen ? "justify-between" : "justify-center"
+                )}
               >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <Icon name={group.icon as keyof typeof Icon.icons} className="w-5 h-5 flex-shrink-0" />
-                  <span className={`whitespace-nowrap transition-all duration-300 ${isSidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>{group.title}</span>
+                <div className="flex items-center gap-3">
+                  <Icon 
+                    name={group.icon as any} 
+                    className={cn(
+                        "w-5 h-5 flex-shrink-0 transition-colors", 
+                        openGroups[group.title] ? "text-green-600" : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
+                    )} 
+                  />
+                  {isSidebarOpen && (
+                      <span className="whitespace-nowrap overflow-hidden text-ellipsis">{group.title}</span>
+                  )}
                 </div>
-                {isSidebarOpen && <Icon name="chevronDown" className={`w-4 h-4 transition-transform duration-200 ${openGroups[group.title] ? 'rotate-180' : ''}`} />}
+                {isSidebarOpen && (
+                    <Icon 
+                        name="chevronDown" 
+                        className={cn(
+                            "w-4 h-4 text-gray-400 transition-transform duration-200", 
+                            openGroups[group.title] ? "rotate-180 text-gray-600" : ""
+                        )} 
+                    />
+                )}
               </button>
-              {isSidebarOpen && openGroups[group.title] && (
-                <div className="pl-5 mt-1 space-y-1 animate-in slide-in-from-top-2 duration-200">
-                  {group.items.map(item => (
-                    <NavLink
-                      key={item.label}
-                      to={item.path}
-                      className={({isActive}) => `flex items-center gap-3 p-2 rounded-lg text-sm transition-colors duration-200 ${
-                        isActive
-                          ? 'bg-green-50 text-green-600 dark:bg-green-500/20 dark:text-green-300 font-semibold'
-                          : 'text-gray-600 dark:text-dark-text hover:bg-black/5 dark:hover:bg-dark-surfaceHover'
-                      }`}
+              
+              <AnimatePresence initial={false}>
+                  {isSidebarOpen && openGroups[group.title] && (
+                    <motion.div
+                        {...({
+                            initial: { height: 0, opacity: 0 },
+                            animate: { height: "auto", opacity: 1 },
+                            exit: { height: 0, opacity: 0 },
+                            transition: { duration: 0.2, ease: "easeInOut" }
+                        } as any)}
+                        className="overflow-hidden"
                     >
-                      <Icon name={item.icon as keyof typeof Icon.icons} className="w-5 h-5 flex-shrink-0"/>
-                      <span className="flex-grow whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
-                      {(item as any).new && <span className="text-xs font-bold bg-green-500 text-white rounded-full px-2 py-0.5">New</span>}
-                    </NavLink>
-                  ))}
-                </div>
-              )}
+                      <div className="space-y-0.5 pt-1 pb-2">
+                        {group.items.map(item => {
+                            if (item.subItems) {
+                                const isExpanded = expandedItems[item.label];
+                                const isParentActive = item.subItems.some(sub => sub.path === location.pathname);
+                                
+                                return (
+                                    <div key={item.label}>
+                                        <button
+                                            onClick={(e) => handleItemExpand(e, item.label)}
+                                            className={cn(
+                                                "w-full flex items-center justify-between py-2 pr-3 pl-10 rounded-md text-sm transition-all duration-200 group relative",
+                                                isParentActive 
+                                                    ? "text-gray-900 dark:text-white font-medium"
+                                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                            )}
+                                        >
+                                           <div className="flex items-center gap-3 overflow-hidden">
+                                              <Icon name={item.icon as any} className={cn("w-4 h-4 flex-shrink-0 transition-colors", isParentActive ? "text-green-600" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300")} />
+                                              <span className="whitespace-nowrap truncate">{item.label}</span>
+                                           </div>
+                                           <Icon 
+                                              name="chevronDown" 
+                                              className={cn(
+                                                  "w-3 h-3 transition-transform duration-200 opacity-50 group-hover:opacity-100", 
+                                                  isExpanded ? "rotate-180" : ""
+                                              )} 
+                                           />
+                                        </button>
+                                        
+                                        <AnimatePresence>
+                                            {isExpanded && (
+                                                <motion.div
+                                                    {...({
+                                                        initial: { height: 0, opacity: 0 },
+                                                        animate: { height: "auto", opacity: 1 },
+                                                        exit: { height: 0, opacity: 0 },
+                                                        transition: { duration: 0.2, ease: "easeInOut" }
+                                                    } as any)}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="space-y-0.5 mt-0.5 mb-1">
+                                                        {item.subItems.map(sub => {
+                                                            const isActive = location.pathname === sub.path;
+                                                            return (
+                                                            <Link
+                                                                key={sub.label}
+                                                                to={sub.path}
+                                                                className={cn(
+                                                                    "group flex items-center gap-3 py-1.5 pr-3 pl-[3.25rem] rounded-r-md text-[13px] transition-all duration-200 relative",
+                                                                    isActive
+                                                                        ? "text-green-700 dark:text-green-400 font-semibold bg-green-50/50 dark:bg-green-900/10"
+                                                                        : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50/50 dark:hover:bg-zinc-800/50"
+                                                                )}
+                                                            >
+                                                                <div className={cn("absolute left-0 top-1 bottom-1 w-0.5 rounded-r transition-colors", isActive ? "bg-green-500" : "bg-transparent")}></div>
+                                                                
+                                                                <Icon 
+                                                                    name={sub.icon as any} 
+                                                                    className={cn(
+                                                                        "w-3.5 h-3.5 flex-shrink-0 transition-colors",
+                                                                        isActive ? "text-green-600 dark:text-green-500" : "text-gray-400 group-hover:text-gray-500 dark:text-zinc-500 dark:group-hover:text-zinc-400"
+                                                                    )} 
+                                                                />
+                                                                <span className="whitespace-nowrap truncate">{sub.label}</span>
+                                                            </Link>
+                                                        )})}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                );
+                            }
+
+                            const isActive = location.pathname === item.path;
+                            return (
+                              <Link
+                                key={item.label}
+                                to={item.path}
+                                className={cn(
+                                    "flex items-center gap-3 py-2 pr-3 pl-10 rounded-md text-sm transition-all duration-200 relative group",
+                                    isActive
+                                      ? "text-green-700 dark:text-green-400 font-semibold bg-green-50/50 dark:bg-green-900/10"
+                                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
+                                )}
+                              >
+                                <>
+                                    {isActive && <div className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-green-500 rounded-r"></div>}
+                                    <Icon 
+                                        name={item.icon as any} 
+                                        className={cn(
+                                            "w-4 h-4 flex-shrink-0 transition-colors", 
+                                            isActive ? "text-green-600" : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                                        )}
+                                    />
+                                    <span className="whitespace-nowrap truncate">{item.label}</span>
+                                    {item.new && <span className="ml-auto text-[9px] font-bold bg-green-500 text-white rounded-full px-1.5 py-0.5">NEW</span>}
+                                </>
+                              </Link>
+                            );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+              </AnimatePresence>
             </div>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        
+        {/* Bottom Collapse Toggle */}
+        <div className="p-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-[#09090b] overflow-hidden">
             <button
               onClick={() => dispatch(toggleSidebar())}
-              className={`w-full flex items-center justify-center gap-3 p-2 rounded-lg text-sm font-semibold transition-colors duration-200
-                bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-300
-                hover:bg-green-100 dark:hover:bg-green-500/20`}
-                title={isSidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
+              className={cn(
+                  "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200",
+                  "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  isSidebarOpen ? "justify-start" : "justify-center"
+              )}
+              title={isSidebarOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
             >
                 <Icon name={isSidebarOpen ? "arrowLeft" : "chevronRight"} className="w-5 h-5 flex-shrink-0" />
+                {isSidebarOpen && <span className="whitespace-nowrap overflow-hidden text-ellipsis">Collapse Sidebar</span>}
             </button>
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 };

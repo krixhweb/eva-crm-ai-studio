@@ -20,13 +20,13 @@ const SendEmailModal: React.FC<SendEmailModalProps> = ({ isOpen, onClose, onSend
 
     return (
         <Drawer open={isOpen} onOpenChange={onClose}>
-            <DrawerContent className="max-w-lg">
-                <DrawerHeader>
+            <DrawerContent className="w-full md:w-[600px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+                <DrawerHeader className="border-b px-6 py-4 bg-white dark:bg-zinc-900">
                     <DrawerTitle>Send {documentType} {documentId}</DrawerTitle>
                     <DrawerDescription>To: {customerName}</DrawerDescription>
                 </DrawerHeader>
                 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
                     <div className="space-y-2">
                         <Label>Subject</Label>
                         <Input defaultValue={`${documentType} ${documentId} from Your Company`} />
@@ -37,7 +37,7 @@ const SendEmailModal: React.FC<SendEmailModalProps> = ({ isOpen, onClose, onSend
                     </div>
                 </div>
 
-                <DrawerFooter className="flex-row justify-end gap-2">
+                <DrawerFooter className="flex-row justify-end gap-2 border-t px-6 py-4 bg-white dark:bg-zinc-900">
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
                     <Button onClick={onSend}>Send</Button>
                 </DrawerFooter>

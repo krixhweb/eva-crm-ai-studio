@@ -11,7 +11,7 @@ import { mockInvoices, mockPayments } from '../../../data/financialsMockData';
 import { mockCustomers } from '../../../data/mockData';
 
 const InvoiceDetailsPage = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const invoice = mockInvoices.find(i => i.id === id);
     const customer = mockCustomers.find(c => c.id === invoice?.customerId);
     const payments = mockPayments.filter(p => p.invoiceId === id);

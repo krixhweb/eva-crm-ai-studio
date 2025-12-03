@@ -12,7 +12,7 @@ import { formatCurrency } from '../../lib/utils';
 import { mockTeamMembers, mockSalesActivities, mockDeals } from '../../data/mockData';
 
 const SalesPersonDetailsPage = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     
     // Lookup Data
@@ -168,19 +168,9 @@ const SalesPersonDetailsPage = () => {
 
             {/* Tabs */}
             <Tabs defaultValue="activities">
-                <TabsList className="w-full justify-start border-b dark:border-gray-700 rounded-none h-auto p-0 bg-transparent space-x-6">
-                    <TabsTrigger 
-                        value="activities" 
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2"
-                    >
-                        Activity Log
-                    </TabsTrigger>
-                    <TabsTrigger 
-                        value="deals" 
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2"
-                    >
-                        Assigned Deals
-                    </TabsTrigger>
+                <TabsList>
+                    <TabsTrigger value="activities">Activity Log</TabsTrigger>
+                    <TabsTrigger value="deals">Assigned Deals</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="activities" className="mt-6">

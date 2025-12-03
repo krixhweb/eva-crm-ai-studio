@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Drawer,
@@ -9,6 +10,7 @@ import {
 } from "../../../../components/ui/Drawer";
 import { Button } from "../../../../components/ui/Button";
 import { Label } from "../../../../components/ui/Label";
+import { Input } from "../../../../components/ui/Input";
 import {
   Select,
   SelectContent,
@@ -61,7 +63,14 @@ interface FilterState {
   dateTo: string;   // dd-mm-yyyy
 }
 
-export const ProductFilterDrawer = ({
+interface ProductFilterDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onApply: (filters: FilterState) => void;
+  categories: string[];
+}
+
+export const ProductFilterDrawer: React.FC<ProductFilterDrawerProps> = ({
   isOpen,
   onClose,
   onApply,
@@ -121,15 +130,15 @@ export const ProductFilterDrawer = ({
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="max-w-md" resizable>
-        <DrawerHeader className="border-b dark:border-gray-800 pb-4">
+      <DrawerContent className="w-full md:w-[420px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+        <DrawerHeader className="border-b dark:border-gray-800 px-6 py-5 bg-white dark:bg-zinc-900 z-10">
           <DrawerTitle>Filter Products</DrawerTitle>
           <DrawerDescription>
             Refine your product list by category, status, warehouse and updated date.
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
 
           {/* Category */}
           <div className="space-y-3">
@@ -257,7 +266,7 @@ export const ProductFilterDrawer = ({
           </div>
         </div>
 
-        <DrawerFooter className="flex-row justify-end gap-2 border-t p-4">
+        <DrawerFooter className="flex-row justify-end gap-2 border-t border-gray-100 dark:border-zinc-800 px-6 py-5 bg-white dark:bg-zinc-900 z-20">
           <Button variant="outline" onClick={handleClear}>
             Clear Filters
           </Button>

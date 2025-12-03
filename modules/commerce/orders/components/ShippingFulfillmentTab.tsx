@@ -10,6 +10,7 @@ import { Badge } from "../../../../components/ui/Badge";
 import { StatusBadge } from '../../../../components/ui/StatusBadge';
 import { formatCurrency, cn } from '../../../../lib/utils';
 import type { ShippingInfo } from '../../../../types';
+import Timeline from '../../../../components/ui/Timeline';
 import {
   Drawer,
   DrawerContent,
@@ -44,12 +45,12 @@ const getMockItems = (orderId: string) => [
 // --- LABEL PREVIEW MODAL ---
 const LabelPreviewModal = ({ isOpen, onClose, orderId, carrier, tracking, customerName }: any) => (
     <Drawer open={isOpen} onOpenChange={onClose}>
-        <DrawerContent className="max-w-md mx-auto">
-            <DrawerHeader>
+        <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+            <DrawerHeader className="border-b px-6 py-4">
                 <DrawerTitle>Shipping Label Preview</DrawerTitle>
                 <DrawerDescription>Standard 4x6 Thermal Label</DrawerDescription>
             </DrawerHeader>
-            <div className="p-6 flex justify-center bg-gray-100 dark:bg-zinc-900">
+            <div className="flex-1 overflow-y-auto p-6 flex justify-center bg-gray-100 dark:bg-zinc-900">
                 <div className="w-[300px] h-[450px] bg-white text-black p-4 border-2 border-black flex flex-col justify-between shadow-lg">
                     {/* Header */}
                     <div className="flex justify-between items-start border-b-2 border-black pb-4">
@@ -91,7 +92,7 @@ const LabelPreviewModal = ({ isOpen, onClose, orderId, carrier, tracking, custom
                     </div>
                 </div>
             </div>
-            <DrawerFooter className="flex-row justify-end gap-2">
+            <DrawerFooter className="border-t px-6 py-4 flex-row justify-end gap-2 bg-white dark:bg-zinc-900">
                 <Button variant="outline" onClick={onClose}><Icon name="download" className="w-4 h-4 mr-2"/> Download PDF</Button>
                 <Button onClick={onClose} className="bg-blue-600 text-white">Print Label</Button>
             </DrawerFooter>

@@ -4,8 +4,8 @@ import { useSelector } from 'react-redux';
 import Dashboard from "./components/leads/Dashboard";
 import Toolbar from "./components/leads/Toolbar";
 import PipelineAndTable from "./components/leads/PipelineAndTable";
-import { useToast } from "../../hooks/use-toast";
-import CreateLeadModal from "../../components/modals/CreateLeadModal";
+import { useGlassyToasts } from "../../../components/ui/GlassyToastProvider";
+import CreateLeadModal from "../../../components/modals/CreateLeadModal";
 import type { Deal, LeadFormData } from '../../types';
 import { mockDeals } from '../../data/mockData';
 import type { RootState } from '../../store/store';
@@ -14,7 +14,7 @@ const STAGES = ["Lead Gen","Qualification","Proposal","Demo","Negotiation","Clos
 const PRIORITIES = ["low","medium","high"];
 
 const SalesPipelinePage: React.FC = () => {
-  const { toast } = useToast();
+  const { push } = useGlassyToasts();
   const [deals, setDeals] = useState<Deal[]>(mockDeals);
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -30,7 +30,7 @@ const SalesPipelinePage: React.FC = () => {
   // table sorting + pagination
   const [sortConfig, setSortConfig] = useState<{ key: keyof Deal; direction: "asc" | "desc" } | null>({ key: "value", direction: "desc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 8;
+  const ITEMS_PER_PAGE = 20;
 
   // Apply filters to deals (global)
   const filteredDeals = useMemo(() => {
@@ -51,13 +51,17 @@ const SalesPipelinePage: React.FC = () => {
       }
       return true;
     }).sort((a,b) => {
+      // Only apply sort if viewing as table or if specific sort requested. 
+      // For Kanban, we rely on array order.
+      if (view === 'kanban') return 0;
+
       if (!sortConfig) return 0;
       const aV = a[sortConfig.key];
       const bV = b[sortConfig.key];
       if (typeof aV === "number" && typeof bV === "number") return sortConfig.direction === "asc" ? aV - bV : bV - aV;
       return sortConfig.direction === "asc" ? String(aV).localeCompare(String(bV)) : String(bV).localeCompare(String(aV));
     });
-  }, [deals, searchValue, assignedValue, stageValue, priorityValue, dateFrom, dateTo, sortConfig]);
+  }, [deals, searchValue, assignedValue, stageValue, priorityValue, dateFrom, dateTo, sortConfig, view]);
 
   // pagination info for table
   const totalPages = Math.max(1, Math.ceil(filteredDeals.length / ITEMS_PER_PAGE));
@@ -77,11 +81,11 @@ const SalesPipelinePage: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    toast({ title: "Filters applied", description: "Data refreshed" });
+    push({ title: "Filters applied", description: "Data refreshed", variant: "info" });
   };
 
   const handleExport = () => {
-    if (filteredDeals.length === 0) { toast({ title: "No data", description: "No rows to export", variant: "destructive" }); return; }
+    if (filteredDeals.length === 0) { push({ title: "No data", description: "No rows to export", variant: "error" }); return; }
     const header = ["Company","Description","Value","Stage","Priority","Probability"];
     const rows = filteredDeals.map(d => [
       `"${d.company.replace(/"/g,'""')}"`,
@@ -99,22 +103,19 @@ const SalesPipelinePage: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast({ title: "Export complete", description: `${filteredDeals.length} rows exported.` });
+    push({ title: "Export complete", description: `${filteredDeals.length} rows exported.`, variant: "success" });
   };
 
-  // simple CSV parse: parent handles strict validation & append/replace flow if needed
   const handleImportFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = String(e.target?.result || "");
-      // Basic parse + minimal validation here; open a confirm to append (simple)
-      // For now do a lightweight parse and append — if you want strict rules reuse previous parser
       const lines = text.split(/\r?\n/).filter(Boolean);
-      if (lines.length <= 1) { toast({ title: "Empty CSV", variant: "destructive" }); return; }
+      if (lines.length <= 1) { push({ title: "Empty CSV", variant: "error" }); return; }
       const header = lines[0].split(",").map(h => h.trim());
       const required = ["Company","Description","Value","Stage","Priority","Probability"];
       const okHeader = required.every((r, idx) => header[idx] && header[idx].toLowerCase() === r.toLowerCase());
-      if (!okHeader) { toast({ title: "CSV invalid", description: `Required header: ${required.join(", ")}`, variant: "destructive" }); return; }
+      if (!okHeader) { push({ title: "CSV invalid", description: `Required header: ${required.join(", ")}`, variant: "error" }); return; }
       const parsed: Deal[] = [];
       for (let i = 1; i < lines.length; i++) {
         try {
@@ -145,39 +146,75 @@ const SalesPipelinePage: React.FC = () => {
         } catch (err) { /* skip bad rows */ }
       }
 
-      if (parsed.length === 0) { toast({ title: "No rows parsed", variant: "destructive" }); return; }
+      if (parsed.length === 0) { push({ title: "No rows parsed", variant: "error" }); return; }
 
-      // show simple confirm: Append or Replace
       if (confirm(`Import ${parsed.length} rows. Press OK to append, Cancel to replace.`)) {
         setDeals(prev => [...parsed, ...prev]);
-        toast({ title: "Import appended", description: `${parsed.length} deals appended.` });
+        push({ title: "Import appended", description: `${parsed.length} deals appended.`, variant: "success" });
       } else {
         setDeals(parsed);
-        toast({ title: "Import replaced", description: `${parsed.length} deals imported.` });
+        push({ title: "Import replaced", description: `${parsed.length} deals imported.`, variant: "success" });
       }
     };
     reader.readAsText(file, "utf-8");
   };
 
-  // kanban move call
-  const handleMoveDeal = (dealId: string, newStage: string) => {
-    const d = deals.find(x => x.id === dealId);
-    if (!d) return;
-    if (d.stage === "Closed Won" || d.stage === "Closed Lost") { toast({ title: "Move not allowed", description: "Final stages cannot be moved", variant: "destructive" }); return; }
-    if (newStage === d.stage) return;
-    // if moving to closed won/lost we should confirm
-    if (newStage === "Closed Won") {
-      if (!confirm(`Mark "${d.company}" as Won?`)) return;
-    }
-    setDeals(prev => prev.map(x => x.id === dealId ? { 
-      ...x, 
-      stage: newStage, 
-      daysInStage: 0,
+  // --- DRAG AND DROP REORDERING LOGIC ---
+  const handleMoveDeal = (dealId: string, newStage: string, newIndex?: number) => {
+    const deal = deals.find(d => d.id === dealId);
+    if (!deal) return;
+    
+    // Update stage metadata
+    const updatedDeal = { 
+      ...deal, 
+      stage: newStage,
       updatedBy: currentUser.id,
       updatedByName: currentUser.name,
-      updatedAt: new Date().toISOString() 
-    } : x));
-    toast({ title: "Deal moved", description: `${d.company} → ${newStage}` });
+      updatedAt: new Date().toISOString()
+    };
+    
+    // 1. Remove the deal from the current list
+    const remainingDeals = deals.filter(d => d.id !== dealId);
+    
+    // 2. Get all items currently in the TARGET stage to determine insertion reference
+    const targetStageDeals = remainingDeals.filter(d => d.stage === newStage);
+    
+    // 3. Calculate the insertion index for the global array
+    let finalDeals = [];
+    
+    // If we're appending to the end or list is empty
+    if (typeof newIndex !== 'number' || newIndex >= targetStageDeals.length) {
+        // Find the last item of the target stage in the main array
+        if (targetStageDeals.length === 0) {
+             // If stage is empty, just append to end of global list (simplest)
+             finalDeals = [...remainingDeals, updatedDeal];
+        } else {
+             const lastDealInStage = targetStageDeals[targetStageDeals.length - 1];
+             const lastDealGlobalIndex = remainingDeals.indexOf(lastDealInStage);
+             // Insert after the last item of this stage group
+             finalDeals = [
+                 ...remainingDeals.slice(0, lastDealGlobalIndex + 1),
+                 updatedDeal,
+                 ...remainingDeals.slice(lastDealGlobalIndex + 1)
+             ];
+        }
+    } else {
+        // Inserting before a specific item
+        const targetDeal = targetStageDeals[newIndex];
+        const targetGlobalIndex = remainingDeals.indexOf(targetDeal);
+        finalDeals = [
+            ...remainingDeals.slice(0, targetGlobalIndex),
+            updatedDeal,
+            ...remainingDeals.slice(targetGlobalIndex)
+        ];
+    }
+    
+    setDeals(finalDeals);
+    
+    // Only toast if stage changed
+    if (deal.stage !== newStage) {
+        push({ title: "Deal moved", description: `${deal.company} → ${newStage}`, variant: "success" });
+    }
   };
 
   const handleMarkLost = (dealId: string) => {
@@ -191,7 +228,7 @@ const SalesPipelinePage: React.FC = () => {
       updatedByName: currentUser.name,
       updatedAt: new Date().toISOString()
     } : x));
-    toast({ title: "Marked lost", description: `${d.company} marked as Closed Lost` });
+    push({ title: "Marked lost", description: `${d.company} marked as Closed Lost`, variant: "info" });
   };
 
   const handleSort = (key: keyof Deal) => {
@@ -271,7 +308,7 @@ const SalesPipelinePage: React.FC = () => {
         };
         setDeals(prev => [newDeal, ...prev]);
         setCreateOpen(false);
-        toast({ title: "Lead created", description: `${newDeal.company} added to pipeline.` });
+        push({ title: "Lead created", description: `${newDeal.company} added to pipeline.`, variant: "success" });
       }} />
     </div>
   );

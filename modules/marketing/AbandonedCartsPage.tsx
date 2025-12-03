@@ -109,8 +109,8 @@ const CartRecoveryTab = () => {
                     <Icon name="plus" className="h-4 w-4" /> Create Campaign
                 </Button>
             </DrawerTrigger>
-            <DrawerContent className="max-w-3xl">
-              <DrawerHeader><DrawerTitle>Create Recovery Campaign</DrawerTitle></DrawerHeader>
+            <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+              <DrawerHeader className="border-b px-6 py-4"><DrawerTitle>Create Recovery Campaign</DrawerTitle></DrawerHeader>
               <div className="flex-1 overflow-y-auto p-6">
                 <p className="text-gray-500">This is where you would configure the automation workflow for cart recovery.</p>
               </div>

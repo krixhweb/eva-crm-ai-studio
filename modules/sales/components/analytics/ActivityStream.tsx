@@ -9,7 +9,7 @@ import { Input } from '../../../../components/ui/Input';
 import { Label } from '../../../../components/ui/Label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/Select';
 import { Textarea } from '../../../../components/ui/Textarea';
-import { useToast } from '../../../../hooks/use-toast';
+import { useGlassyToasts } from '../../../../components/ui/GlassyToastProvider';
 import type { SalesActivity, SalesTask } from '../../../../types';
 import type { RootState } from '../../../../store/store';
 import TasksTab from './TasksTab';
@@ -20,12 +20,12 @@ const ActivityLogForm = ({ onSave }: { onSave: (activity: SalesActivity) => void
     const [title, setTitle] = useState('');
     const [type, setType] = useState('CALL');
     const [details, setDetails] = useState('');
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
     const currentUser = useSelector((state: RootState) => state.auth.currentUser);
 
     const handleSave = () => {
         if (!title.trim() || !details.trim()) {
-            toast({ title: "Validation Error", description: "Please fill in all fields.", variant: "destructive" });
+            push({ title: "Validation Error", description: "Please fill in all fields.", variant: "error" });
             return;
         }
         const newActivity: SalesActivity = {
@@ -43,7 +43,7 @@ const ActivityLogForm = ({ onSave }: { onSave: (activity: SalesActivity) => void
         onSave(newActivity);
         setTitle('');
         setDetails('');
-        toast({ title: "Activity Logged", description: "Your activity has been saved successfully." });
+        push({ title: "Activity Logged", description: "Your activity has been saved successfully.", variant: "success" });
     };
 
     return (

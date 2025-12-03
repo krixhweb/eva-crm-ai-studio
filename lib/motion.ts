@@ -1,6 +1,4 @@
 
-import type { Variants } from 'framer-motion';
-
 // --- Transition Settings ---
 export const transition = {
   spring: {
@@ -24,7 +22,7 @@ export const transition = {
 // --- Variants ---
 
 // Container for staggering children
-export const staggerContainer: Variants = {
+export const staggerContainer: any = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -36,13 +34,13 @@ export const staggerContainer: Variants = {
 };
 
 // Standard Fade In
-export const fadeIn: Variants = {
+export const fadeIn: any = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { duration: 0.3 } }
 };
 
 // Slide Up with Fade (Cards, List Items)
-export const slideUp: Variants = {
+export const slideUp: any = {
   hidden: { opacity: 0, y: 15 },
   show: { 
     opacity: 1, 
@@ -52,7 +50,7 @@ export const slideUp: Variants = {
 };
 
 // Scale In (Modals, Badges)
-export const scaleIn: Variants = {
+export const scaleIn: any = {
   hidden: { opacity: 0, scale: 0.95 },
   show: { 
     opacity: 1, 
@@ -69,7 +67,7 @@ export const hoverScale = {
 };
 
 // Wobble Effect for Kanban Drops or Attention
-export const wobbleEffect: Variants = {
+export const wobbleEffect: any = {
   initial: { scale: 1, rotate: 0 },
   animate: {
     scale: [1, 1.02, 0.98, 1],

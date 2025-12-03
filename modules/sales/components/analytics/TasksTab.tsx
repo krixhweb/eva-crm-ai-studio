@@ -9,7 +9,8 @@ import { Label } from '../../../../components/ui/Label';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../../components/ui/Select';
 import { Checkbox } from '../../../../components/ui/Checkbox';
 import { Badge } from '../../../../components/ui/Badge';
-import { useToast } from '../../../../hooks/use-toast';
+import { Textarea } from '../../../../components/ui/Textarea';
+import { useGlassyToasts } from '../../../../components/ui/GlassyToastProvider';
 import type { SalesTask } from '../../../../types';
 import { cn } from '../../../../lib/utils';
 import type { RootState } from '../../../../store/store';
@@ -92,14 +93,14 @@ const formatTaskDate = (dateString: string) => {
 
 const useTaskManager = () => {
     const [tasks, setTasks] = useState<SalesTask[]>(MOCK_TASKS);
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
     const currentUser = useSelector((state: RootState) => state.auth.currentUser);
     
     const createTask = useCallback((task: SalesTask) => {
         const taskWithMeta = { ...task, createdBy: currentUser.id, createdByName: currentUser.name, createdAt: new Date().toISOString() };
         setTasks(prev => [taskWithMeta, ...prev]);
-        toast({ title: "Success", description: "Task created successfully." });
-    }, [toast, currentUser]);
+        push({ title: "Success", description: "Task created successfully.", variant: "success" });
+    }, [push, currentUser]);
 
     const updateTaskStatus = useCallback((id: string, status: 'Open' | 'Completed') => {
         setTasks(prev => prev.map(t => {
@@ -113,8 +114,8 @@ const useTaskManager = () => {
 
     const deleteTask = useCallback((id: string) => {
         setTasks(prev => prev.filter(t => t.id !== id));
-        toast({ title: "Deleted", description: "Task removed." });
-    }, [toast]);
+        push({ title: "Deleted", description: "Task removed.", variant: "info" });
+    }, [push]);
 
     return { tasks, createTask, updateTaskStatus, deleteTask };
 };
@@ -127,7 +128,7 @@ const TaskItem = React.memo<TaskItemProps>(({ task, onToggle, onDelete }) => {
     
     return (
         <motion.div 
-            layout="position"
+            {...({ layout: "position" } as any)}
             variants={slideUp}
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             className={cn(
@@ -169,11 +170,12 @@ TaskItem.displayName = "TaskItem";
 const AddTaskForm = forwardRef<AddTaskFormHandle, AddTaskFormProps>(({ onSave }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
     const [time, setTime] = useState('');
     const [priority, setPriority] = useState<string>('Medium');
     const [tags, setTags] = useState('');
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
     const todayStr = getTodayStr();
 
     useImperativeHandle(ref, () => ({
@@ -197,20 +199,20 @@ const AddTaskForm = forwardRef<AddTaskFormHandle, AddTaskFormProps>(({ onSave },
     const handleSubmit = () => {
         if (!title.trim()) return;
         if (date && date < todayStr) {
-            toast({ title: "Invalid Date", description: "Tasks cannot be assigned to past dates.", variant: "destructive" });
+            push({ title: "Invalid Date", description: "Tasks cannot be assigned to past dates.", variant: "error" });
             return;
         }
         onSave({
             id: `t-${Date.now()}`,
             title,
+            description,
             dueDate: date || todayStr,
             priority: priority as any,
             status: 'Open',
             tags: tags ? tags.split(',').map(t => t.trim()) : [],
-            description: '',
             assignee: 'Me'
         });
-        setTitle(''); setTags(''); setTime(''); setIsOpen(false);
+        setTitle(''); setDescription(''); setTags(''); setTime(''); setIsOpen(false);
     };
 
     if (!isOpen) return (
@@ -233,6 +235,12 @@ const AddTaskForm = forwardRef<AddTaskFormHandle, AddTaskFormProps>(({ onSave },
                 </div>
                 <div className="space-y-3">
                     <Input autoFocus placeholder="What needs to be done?" value={title} onChange={(e) => setTitle(e.target.value)} className="border-0 border-b border-gray-200 dark:border-gray-700 rounded-none px-0 focus-visible:ring-0 focus-visible:border-green-500 text-base font-medium bg-transparent" />
+                    <Textarea 
+                        placeholder="Details or description (optional)..." 
+                        value={description} 
+                        onChange={(e) => setDescription(e.target.value)} 
+                        className="min-h-[60px] text-sm resize-none bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-gray-700"
+                    />
                     <div className="flex flex-wrap gap-3">
                         <div className="flex-1 min-w-[140px]">
                             <Label className="text-xs text-gray-500 mb-1 block">Due Date</Label>
@@ -456,7 +464,10 @@ const TasksTab: React.FC = () => {
                         <div className="space-y-1">
                             <AnimatePresence mode="popLayout">
                                 {upcomingTasks.length === 0 && selectedDate ? (
-                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                    <motion.div 
+                                        {...({ initial: { opacity: 0 }, animate: { opacity: 1 } } as any)} 
+                                        className="text-center py-12 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
+                                    >
                                         <Icon name="checkCircle" className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                                         <p className="text-gray-500 text-sm font-medium">No tasks found for this date.</p>
                                         {!isPastDate && <Button variant="link" className="text-blue-600 h-auto p-0 mt-1 text-xs" onClick={handleQuickAddForDate}>+ Add task for {new Date(selectedDate).toLocaleDateString()}</Button>}
@@ -465,7 +476,10 @@ const TasksTab: React.FC = () => {
                                     upcomingTasks.map(task => <TaskItem key={task.id} task={task} onToggle={updateTaskStatus} onDelete={deleteTask} />)
                                 )}
                                 {upcomingTasks.length === 0 && !selectedDate && (
-                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                    <motion.div 
+                                        {...({ initial: { opacity: 0 }, animate: { opacity: 1 } } as any)}
+                                        className="text-center py-12 bg-gray-50/50 dark:bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
+                                    >
                                         <Icon name="checkCircle" className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                                         <p className="text-gray-500 text-sm font-medium">No upcoming tasks.</p>
                                     </motion.div>

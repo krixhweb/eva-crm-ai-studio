@@ -1,5 +1,6 @@
 
 
+
 import type { SalesOrder, PurchaseOrder, ReturnRequest, SupplierReturn, ShippingInfo } from '../types';
 
 export const mockSalesOrders: SalesOrder[] = [
@@ -13,7 +14,7 @@ export const mockSalesOrders: SalesOrder[] = [
 
 export const mockPurchaseOrders: PurchaseOrder[] = [
     { id: "PO-2001", supplierName: "Furniture Co.", createdDate: "2024-07-20", expectedDelivery: "2024-08-10", totalCost: 280000, status: 'Approved' },
-    { id: "PO-2002", supplierName: "Decor Direct", createdDate: "2024-07-18", expectedDelivery: "2024-08-05", totalCost: 45000, status: 'Received' },
+    { id: "PO-2002", supplierName: "Decor Direct", createdDate: "2024-07-18", expectedDelivery: "2024-08-05", totalCost: 45000, status: 'Received' }, // Changed Delivered to Received per enterprise std
     { id: "PO-2003", supplierName: "Office Essentials Ltd.", createdDate: "2024-07-25", expectedDelivery: "2024-08-15", totalCost: 170000, status: 'Draft' },
     { id: "PO-2004", supplierName: "Furniture Co.", createdDate: "2024-07-15", expectedDelivery: "2024-08-01", totalCost: 135000, status: 'Cancelled' },
     { id: "PO-2005", supplierName: "Decor Direct", createdDate: "2024-07-22", expectedDelivery: "2024-08-08", totalCost: 60000, status: 'Approved' },

@@ -42,9 +42,12 @@ export const InventoryDashboard = ({ products, onReorder }: { products: Product[
         // Mocking Warehouse Data derived from product locations
         const warehouseCounts: Record<string, number> = {};
         products.forEach(p => {
-            p.locations.forEach(l => {
-                warehouseCounts[l.locationName] = (warehouseCounts[l.locationName] || 0) + l.stock;
-            });
+            // Use inventoryByLocation instead of legacy locations
+            if (p.inventoryByLocation) {
+                p.inventoryByLocation.forEach(l => {
+                    warehouseCounts[l.locationName] = (warehouseCounts[l.locationName] || 0) + l.stock;
+                });
+            }
         });
         const warehouseData = Object.keys(warehouseCounts).map(k => ({ name: k, value: warehouseCounts[k] }));
 
@@ -316,7 +319,7 @@ export const InventoryDashboard = ({ products, onReorder }: { products: Product[
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredStock.slice(0, 10).map(p => (
+                                {filteredStock.slice(0, 20).map(p => (
                                     <TableRow key={p.id}>
                                         <TableCell className="font-medium text-sm">{p.name}</TableCell>
                                         <TableCell className="font-mono text-xs text-gray-500">{p.sku}</TableCell>

@@ -11,7 +11,7 @@ import { mockQuotes } from '../../../data/financialsMockData';
 import { mockCustomers } from '../../../data/mockData';
 
 const QuoteDetailsPage = () => {
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
     const quote = mockQuotes.find(q => q.id === id);
     const customer = mockCustomers.find(c => c.id === quote?.customerId);
 
@@ -58,7 +58,7 @@ const QuoteDetailsPage = () => {
                                         <TableHead>Quantity</TableHead>
                                         <TableHead>Unit Price</TableHead>
                                         <TableHead className="text-right">Total</TableHead>
-                                    </TableRow>
+                                    TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {quote.lineItems.map(item => (

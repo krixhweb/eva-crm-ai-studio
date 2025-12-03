@@ -96,13 +96,15 @@ interface PopoverContentProps {
   className?: string;
   align?: "start" | "center" | "end";
   sideOffset?: number;
+  onOpenAutoFocus?: (event: Event) => void;
 }
 
 export const PopoverContent: React.FC<PopoverContentProps> = ({ 
   children, 
   className, 
   align = "start", 
-  sideOffset = 8 
+  sideOffset = 8,
+  onOpenAutoFocus
 }) => {
   const { open, setOpen, triggerRef } = usePopover();
   const contentRef = React.useRef<HTMLDivElement>(null);

@@ -22,8 +22,8 @@ import {
 } from "../ui/Select";
 
 import MultiSelect from "../ui/MultiSelect"; 
-import { Icon } from "../icons/Icon";
-import { useToast } from "../../hooks/use-toast";
+import { Icon } from "../shared/Icon";
+import { useGlassyToasts } from "../ui/GlassyToastProvider";
 
 export interface LeadFormData {
   templateType: "company" | "individual";
@@ -68,7 +68,7 @@ const defaultTags = [
 ];
 
 const CreateLeadModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
-  const { toast } = useToast();
+  const { push } = useGlassyToasts();
 
   const [tagsList, setTagsList] = useState<string[]>(defaultTags);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -132,29 +132,31 @@ const CreateLeadModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
   const handleSubmit = () => {
     const err = validate();
     if (err) {
-      toast({ title: "Validation Error", description: err, variant: "destructive" });
+      push({ title: "Validation Error", description: err, variant: "error" });
       return;
     }
     onCreate({ ...form, tags: selectedTags });
   };
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="max-w-xl">
+    <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
         
         {/* Header */}
-        <DrawerHeader>
-          <DrawerTitle className="flex items-center gap-2">
-            <Icon name="plus" className="h-5 w-5 text-green-600" />
-            Create Lead
-          </DrawerTitle>
+        <DrawerHeader className="border-b px-6 py-4 bg-white dark:bg-zinc-900 z-10">
+          <div className="flex items-center gap-2">
+            <DrawerTitle className="flex items-center gap-2">
+              <Icon name="plus" className="h-5 w-5 text-green-600" />
+              Create Lead
+            </DrawerTitle>
+          </div>
           <DrawerDescription>
             Add a new lead to your pipeline.
           </DrawerDescription>
         </DrawerHeader>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
 
           {/* Type & Owner */}
           <div className="grid grid-cols-2 gap-5">
@@ -283,9 +285,11 @@ const CreateLeadModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
         </div>
 
         {/* Footer */}
-        <DrawerFooter className="flex-row justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">Create Lead</Button>
+        <DrawerFooter className="border-t px-6 py-4 bg-white dark:bg-zinc-900 z-20">
+          <div className="flex justify-end gap-2 w-full">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button onClick={handleSubmit} className="bg-green-600 hover:bg-green-700 text-white">Create Lead</Button>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

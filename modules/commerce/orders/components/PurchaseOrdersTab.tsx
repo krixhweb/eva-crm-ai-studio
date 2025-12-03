@@ -13,6 +13,7 @@ import type { PurchaseOrder } from '../../../../types';
 interface PurchaseOrdersTabProps {
     orders: PurchaseOrder[];
     onCreate: () => void;
+    onCreateReplenishment: () => void;
 }
 
 // Mock Data for Replenishment Orders UI
@@ -23,23 +24,13 @@ const mockReplenishmentOrders = [
     { id: "RO-5004", supplier: "Furniture Co.", reason: "Backorder", quantity: 10, delivery: "2024-08-10", status: "Approved" },
 ];
 
-const PurchaseOrdersTab: React.FC<PurchaseOrdersTabProps> = ({ orders, onCreate }) => {
+const PurchaseOrdersTab: React.FC<PurchaseOrdersTabProps> = ({ orders, onCreate, onCreateReplenishment }) => {
     return (
         <div className="space-y-4">
             <Tabs defaultValue="purchase_orders" className="w-full">
-                <TabsList className="w-full justify-start border-b dark:border-gray-700 rounded-none h-auto p-0 bg-transparent mb-4">
-                    <TabsTrigger 
-                        value="purchase_orders"
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:text-green-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-sm font-medium"
-                    >
-                        Purchase Orders
-                    </TabsTrigger>
-                    <TabsTrigger 
-                        value="replenishment_orders"
-                        className="rounded-none border-b-2 border-transparent data-[state=active]:border-green-500 data-[state=active]:text-green-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-sm font-medium"
-                    >
-                        Replenishment Orders
-                    </TabsTrigger>
+                <TabsList className="mb-4">
+                    <TabsTrigger value="purchase_orders">Purchase Orders</TabsTrigger>
+                    <TabsTrigger value="replenishment_orders">Replenishment Orders</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="purchase_orders" className="mt-0">
@@ -108,7 +99,7 @@ const PurchaseOrdersTab: React.FC<PurchaseOrdersTabProps> = ({ orders, onCreate 
                                         <Icon name="list" className="h-4 w-4 mr-2" />
                                         Filters
                                     </Button>
-                                    <Button className="bg-green-600 hover:bg-green-700 text-white">
+                                    <Button onClick={onCreateReplenishment} className="bg-green-600 hover:bg-green-700 text-white">
                                         <Icon name="plus" className="h-4 w-4 mr-2" />
                                         Create Replenishment Order
                                     </Button>

@@ -105,12 +105,12 @@ const renderActivityDetails = (activity: Activity) => {
 const ActivityPreviewModal: React.FC<ActivityPreviewModalProps> = ({ activity, onClose }) => {
     return (
         <Drawer open={true} onOpenChange={onClose}>
-            <DrawerContent className="max-w-md">
-                <DrawerHeader>
+            <DrawerContent className="w-full md:w-[900px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+                <DrawerHeader className="border-b px-6 py-4 bg-white dark:bg-zinc-900">
                     <DrawerTitle>{activity.title}</DrawerTitle>
                     <DrawerDescription>{activity.timestamp}</DrawerDescription>
                 </DrawerHeader>
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50 dark:bg-zinc-950/50">
                     {renderActivityDetails(activity)}
                 </div>
             </DrawerContent>

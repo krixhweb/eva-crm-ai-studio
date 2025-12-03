@@ -36,7 +36,7 @@ export const Drawer = ({ open, onOpenChange, children }: { open?: boolean; onOpe
     return <DrawerContext.Provider value={{ open: isOpen, setOpen }}>{children}</DrawerContext.Provider>;
 };
 
-const DrawerPortal = ({ children }: { children: React.ReactNode }) => {
+const DrawerPortal = ({ children }: { children?: React.ReactNode }) => {
     const { open } = useDrawerContext();
     if (!open) return null;
 
@@ -44,7 +44,7 @@ const DrawerPortal = ({ children }: { children: React.ReactNode }) => {
     return createPortal(children, portalNode);
 };
 
-const DrawerOverlay = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
+export const DrawerOverlay = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<"div">>(({ className, ...props }, ref) => {
     const { setOpen } = useDrawerContext();
     return (
         <div 
@@ -125,9 +125,6 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, React.HTMLAttribut
         };
     }, [isResizing, resize, stopResizing]);
 
-    // Check if width class is provided in className
-    const hasWidthClass = className?.includes('w-') || className?.includes('max-w-');
-
     return (
         <DrawerPortal>
             <DrawerOverlay />
@@ -135,11 +132,10 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, React.HTMLAttribut
                 ref={ref}
                 style={{ width: width ? `${width}px` : undefined }}
                 className={cn(
-                    "fixed inset-y-0 right-0 z-50 h-full border-l bg-white dark:bg-zinc-900 shadow-2xl slide-in-from-right flex flex-col",
-                    // Default width only if not specified in className or manually resized
-                    (!width && !hasWidthClass) && "w-3/4 sm:max-w-sm",
-                    !isResizing && "transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out duration-300",
-                    className
+                  "fixed inset-y-0 right-0 z-50 h-full bg-white dark:bg-zinc-900 shadow-2xl flex flex-col",
+                  "w-full md:w-[600px]", // Default width
+                  !isResizing && "transition-transform ease-in-out duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out slide-in-from-right",
+                  className
                 )}
                 {...props}
             >
@@ -168,48 +164,22 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, React.HTMLAttribut
 });
 DrawerContent.displayName = "DrawerContent";
 
-export const DrawerHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("flex flex-col space-y-1.5 p-6 border-b dark:border-zinc-800 shrink-0", className)}
-    {...props}
-  />
+export const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("flex flex-col space-y-1.5 p-6 border-b dark:border-zinc-800 shrink-0", className)} {...props} />
 )
 DrawerHeader.displayName = "DrawerHeader"
 
-export const DrawerFooter = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end gap-2 p-6 border-t dark:border-zinc-800 shrink-0", className)}
-    {...props}
-  />
+export const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end gap-2 p-6 border-t dark:border-zinc-800 shrink-0", className)} {...props} />
 )
 DrawerFooter.displayName = "DrawerFooter"
 
-export const DrawerTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
+export const DrawerTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(({ className, ...props }, ref) => (
+  <h3 ref={ref} className={cn("text-lg font-semibold leading-none tracking-tight", className)} {...props} />
 ))
 DrawerTitle.displayName = "DrawerTitle"
 
-export const DrawerDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-gray-500 dark:text-gray-400", className)}
-    {...props}
-  />
+export const DrawerDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(({ className, ...props }, ref) => (
+  <p ref={ref} className={cn("text-sm text-gray-500 dark:text-gray-400", className)} {...props} />
 ))
 DrawerDescription.displayName = "DrawerDescription"

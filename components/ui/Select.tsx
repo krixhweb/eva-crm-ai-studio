@@ -6,7 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "./DropdownMenu";
-import { Icon } from "../icons/Icon";
+import { Icon } from "../shared/Icon";
 import { cn } from "../../lib/utils";
 
 interface SelectContextProps {
@@ -109,7 +109,7 @@ export const SelectTrigger = React.forwardRef<
           className
         )}
       >
-        <span className="truncate">{children}</span>
+        <span className="truncate w-full text-left">{children}</span>
         <Icon name="chevronDown" className="h-4 w-4 text-gray-500 ml-2 flex-shrink-0" />
       </button>
     </DropdownMenuTrigger>
@@ -119,10 +119,14 @@ SelectTrigger.displayName = "SelectTrigger";
 
 
 // SelectValue component
-export const SelectValue = ({ placeholder }: { placeholder?: string }) => {
+export const SelectValue = ({ placeholder, children }: { placeholder?: string; children?: React.ReactNode }) => {
   const { value, options } = useSelect();
   const selectedContent = options.get(value);
   
+  if (children) {
+    return <>{children}</>;
+  }
+
   if (selectedContent) {
     return <>{selectedContent}</>;
   }

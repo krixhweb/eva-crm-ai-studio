@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Icon } from '../icons/Icon';
+import { Icon } from '../shared/Icon';
 import { cn } from '../../lib/utils';
 
 interface TimelineItem {

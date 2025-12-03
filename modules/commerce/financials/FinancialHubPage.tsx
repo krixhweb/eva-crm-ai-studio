@@ -6,7 +6,7 @@ import { Card, CardContent } from "../../../components/ui/Card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/Tabs";
 import { Icon } from "../../../components/shared/Icon";
 import { formatCurrency } from "../../../lib/utils";
-import { useToast } from "../../../hooks/use-toast";
+import { useGlassyToasts } from "../../../components/ui/GlassyToastProvider";
 
 import QuotesTab from './components/QuotesTab';
 import InvoicesTab from './components/InvoicesTab';
@@ -22,7 +22,7 @@ import { mockQuotes, mockInvoices, mockPayments } from '../../../data/financials
 import type { Quote, Invoice, Payment } from '../../../types';
 
 const FinancialHubPage = () => {
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
     const navigate = useNavigate();
 
     // State Management
@@ -39,14 +39,14 @@ const FinancialHubPage = () => {
     const handleSaveQuote = (quote: Quote) => {
         const isEditing = quotes.some(q => q.id === quote.id);
         setQuotes(prev => isEditing ? prev.map(q => q.id === quote.id ? quote : q) : [quote, ...prev]);
-        toast({ title: `Quote ${isEditing ? 'Updated' : 'Created'}`, description: `Quote ${quote.id} has been saved.` });
+        push({ title: `Quote ${isEditing ? 'Updated' : 'Created'}`, description: `Quote ${quote.id} has been saved.`, variant: "success" });
         setModal(null);
     };
 
     const handleSaveInvoice = (invoice: Invoice) => {
         const isEditing = invoices.some(i => i.id === invoice.id);
         setInvoices(prev => isEditing ? prev.map(i => i.id === invoice.id ? invoice : i) : [invoice, ...prev]);
-        toast({ title: `Invoice ${isEditing ? 'Updated' : 'Created'}`, description: `Invoice ${invoice.id} has been saved.` });
+        push({ title: `Invoice ${isEditing ? 'Updated' : 'Created'}`, description: `Invoice ${invoice.id} has been saved.`, variant: "success" });
         setModal(null);
     };
 
@@ -66,7 +66,7 @@ const FinancialHubPage = () => {
             }
             return inv;
         }));
-        toast({ title: 'Payment Recorded', description: `Payment of ${formatCurrency(payment.amount)} for Invoice ${payment.invoiceId} recorded.` });
+        push({ title: 'Payment Recorded', description: `Payment of ${formatCurrency(payment.amount)} for Invoice ${payment.invoiceId} recorded.`, variant: "success" });
         setModal(null);
     };
 
@@ -74,10 +74,10 @@ const FinancialHubPage = () => {
         if (!selectedItem) return;
         if ('validTill' in selectedItem) { // It's a Quote
             setQuotes(prev => prev.filter(q => q.id !== selectedItem.id));
-            toast({ title: 'Quote Deleted', variant: 'destructive' });
+            push({ title: 'Quote Deleted', variant: 'error' });
         } else if ('dueDate' in selectedItem) { // It's an Invoice
             setInvoices(prev => prev.filter(i => i.id !== selectedItem.id));
-            toast({ title: 'Invoice Deleted', variant: 'destructive' });
+            push({ title: 'Invoice Deleted', variant: 'error' });
         }
         setModal(null);
         setSelectedItem(null);
@@ -183,7 +183,7 @@ const FinancialHubPage = () => {
                     isOpen={true}
                     onClose={() => setModal(null)}
                     onSend={() => {
-                        toast({ title: "Email Sent", description: `The ${modal === 'send-quote' ? 'quote' : 'invoice'} has been sent.` });
+                        push({ title: "Email Sent", description: `The ${modal === 'send-quote' ? 'quote' : 'invoice'} has been sent.`, variant: "info" });
                         setModal(null);
                     }}
                     documentId={selectedItem.id}

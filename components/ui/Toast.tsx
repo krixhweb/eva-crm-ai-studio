@@ -1,6 +1,7 @@
+
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Icon } from '../icons/Icon';
+import { Icon } from '../shared/Icon';
 import { cn } from '../../lib/utils';
 
 const toastVariants = cva(

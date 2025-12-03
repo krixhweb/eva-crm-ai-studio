@@ -7,7 +7,7 @@ import { Label } from '../ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/Select';
 import { Textarea } from '../ui/Textarea';
 import { formatCurrency, validatePayment } from '../../lib/utils';
-import { useToast } from '../../hooks/use-toast';
+import { useGlassyToasts } from '../ui/GlassyToastProvider';
 import type { Invoice, Payment } from '../../types';
 
 interface RecordPaymentModalProps {
@@ -18,7 +18,7 @@ interface RecordPaymentModalProps {
 }
 
 const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, onClose, onSave, invoice }) => {
-    const { toast } = useToast();
+    const { push } = useGlassyToasts();
     const [formData, setFormData] = useState<Partial<Payment>>({
         amount: invoice.balance,
         paymentDate: new Date().toISOString().split('T')[0],
@@ -30,7 +30,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, onClose
 
     const handleSave = () => {
         if (validationError) {
-            toast({ title: "Validation Error", description: validationError, variant: 'destructive' });
+            push({ title: "Validation Error", description: validationError, variant: 'error' });
             return;
         }
         const newPayment: Payment = {
@@ -45,14 +45,14 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, onClose
     };
 
     return (
-        <Drawer open={isOpen} onOpenChange={onClose}>
-            <DrawerContent className="max-w-md">
-                <DrawerHeader>
+        <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DrawerContent className="w-full md:w-[500px] p-0 overflow-hidden rounded-l-3xl border-l border-gray-200 dark:border-zinc-800 shadow-2xl" resizable>
+                <DrawerHeader className="border-b px-6 py-4 bg-white dark:bg-zinc-900">
                     <DrawerTitle>Record Payment for Invoice {invoice.id}</DrawerTitle>
                     <DrawerDescription>Balance due: {formatCurrency(invoice.balance)}</DrawerDescription>
                 </DrawerHeader>
                 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50 dark:bg-zinc-950/50">
                     <div className="space-y-2">
                         <Label>Amount</Label>
                         <Input type="number" value={formData.amount} onChange={e => setFormData(p => ({...p, amount: parseFloat(e.target.value)}))} />
@@ -79,7 +79,7 @@ const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, onClose
                     </div>
                 </div>
 
-                <DrawerFooter className="flex-row justify-end gap-2">
+                <DrawerFooter className="flex-row justify-end gap-2 border-t px-6 py-4 bg-white dark:bg-zinc-900">
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
                     <Button onClick={handleSave} disabled={!!validationError}>Record Payment</Button>
                 </DrawerFooter>

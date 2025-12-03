@@ -1,18 +1,10 @@
-
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "../../../../components/ui/Select";
-import { Icon } from "../../../../components/icons/Icon";
-import { Label } from "../../../../components/ui/Label";
-import { DatePicker } from "../../../../components/ui/DatePicker";
-import { DateRange } from "../../../../components/ui/Calendar";
+import { Icon } from "../../../../components/shared/Icon";
+import { LeadsFilterDrawer } from "./LeadsFilterDrawer";
+import { Badge } from "../../../../components/ui/Badge";
+import { Card } from "../../../../components/ui/Card";
 
 const Toolbar = ({
   assignees,
@@ -33,26 +25,33 @@ const Toolbar = ({
   onNewLead,
 }) => {
   const fileRef = useRef(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  // Convert string dates back to DateRange object for the component
-  const currentDateRange: DateRange | undefined = (dateFrom || dateTo) ? {
-      from: dateFrom ? new Date(dateFrom) : undefined,
-      to: dateTo ? new Date(dateTo) : undefined
-  } : undefined;
+  const activeFilterCount =
+    (assignedValue !== "All" ? 1 : 0) +
+    (stageValue !== "All" ? 1 : 0) +
+    (priorityValue !== "All" ? 1 : 0) +
+    (dateFrom || dateTo ? 1 : 0);
 
-  const handleDateChange = (range: DateRange | undefined) => {
-      onChange({
-          dateFrom: range?.from ? range.from.toISOString().split('T')[0] : "",
-          dateTo: range?.to ? range.to.toISOString().split('T')[0] : ""
-      });
+  const handleApplyFilters = (filters) => {
+    onChange(filters);
+  };
+
+  const handleClearFilters = () => {
+    onChange({
+      assignedValue: "All",
+      stageValue: "All",
+      priorityValue: "All",
+      dateFrom: "",
+      dateTo: "",
+    });
   };
 
   return (
-    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+    <Card className="p-3">
       <div className="flex items-center gap-4 flex-wrap">
-
         {/* Search */}
-        <div className="relative">
+        <div className="relative flex-1 md:flex-none md:w-64">
           <Icon
             name="search"
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -61,72 +60,28 @@ const Toolbar = ({
             value={searchValue}
             onChange={(e) => onChange({ searchValue: e.target.value })}
             placeholder="Search company or contact..."
-            className="pl-9 w-56 h-9"
+            className="pl-9 h-9 w-full"
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex items-center gap-2">
-            <Label htmlFor="assignee-filter" className="text-sm font-medium text-gray-600 dark:text-gray-400">Assignee</Label>
-            <Select value={assignedValue} onValueChange={(v) => onChange({ assignedValue: v })}>
-              <SelectTrigger id="assignee-filter" className="w-40 h-9">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All</SelectItem>
-                {assignees.map((a) => (
-                  <SelectItem key={a} value={a}>
-                    {a}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-        </div>
-        
-        <div className="flex items-center gap-2">
-            <Label htmlFor="stage-filter" className="text-sm font-medium text-gray-600 dark:text-gray-400">Stage</Label>
-            <Select value={stageValue} onValueChange={(v) => onChange({ stageValue: v })}>
-              <SelectTrigger id="stage-filter" className="w-40 h-9">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All</SelectItem>
-                {stages.filter(s => s !== "All").map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-        </div>
-        
-        <div className="flex items-center gap-2">
-            <Label htmlFor="priority-filter" className="text-sm font-medium text-gray-600 dark:text-gray-400">Priority</Label>
-            <Select value={priorityValue} onValueChange={(v) => onChange({ priorityValue: v })}>
-              <SelectTrigger id="priority-filter" className="w-36 h-9">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All</SelectItem>
-                {priorities.filter(p => p !== "All").map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-        </div>
-        
-        {/* Date selector */}
-        <div className="w-64">
-            <DatePicker 
-                mode="range"
-                value={currentDateRange}
-                onChange={handleDateChange}
-                placeholder="Filter by Due Date"
-                className="h-9"
-            />
-        </div>
+        {/* Filter Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 relative"
+          onClick={() => setIsFilterOpen(true)}
+        >
+          <Icon name="list" className="w-4 h-4" />
+          Filters
+          {activeFilterCount > 0 && (
+            <Badge
+              variant="green"
+              className="ml-1 h-5 w-5 p-0 flex items-center justify-center rounded-full text-[10px]"
+            >
+              {activeFilterCount}
+            </Badge>
+          )}
+        </Button>
 
         {/* Tools */}
         <div className="ml-auto flex items-center gap-2">
@@ -140,10 +95,16 @@ const Toolbar = ({
             type="file"
             accept=".csv"
             className="hidden"
-            onChange={(e) => e.target.files[0] && onImportFile(e.target.files[0])}
+            onChange={(e) =>
+              e.target.files[0] && onImportFile(e.target.files[0])
+            }
           />
 
-          <Button variant="outline" size="sm" onClick={() => fileRef.current.click()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current.click()}
+          >
             <Icon name="arrowUp" className="mr-2 h-4 w-4" />
             Import
           </Button>
@@ -153,10 +114,13 @@ const Toolbar = ({
             Refresh
           </Button>
 
-          <div className="h-8 border-l border-gray-300 mx-2"></div>
+          <div className="h-8 border-l border-gray-300 dark:border-gray-700 mx-2"></div>
 
           <Button variant="outline" size="sm" onClick={onToggleView}>
-            <Icon name={view === "kanban" ? "table" : "pipeline"} className="mr-2 h-4 w-4" />
+            <Icon
+              name={view === "kanban" ? "table" : "pipeline"}
+              className="mr-2 h-4 w-4"
+            />
             {view === "kanban" ? "Table View" : "Kanban View"}
           </Button>
 
@@ -165,7 +129,24 @@ const Toolbar = ({
           </Button>
         </div>
       </div>
-    </div>
+
+      <LeadsFilterDrawer
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        currentFilters={{
+          assignedValue,
+          stageValue,
+          priorityValue,
+          dateFrom,
+          dateTo,
+        }}
+        assignees={assignees}
+        stages={stages}
+        priorities={priorities}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      />
+    </Card>
   );
 };
 
