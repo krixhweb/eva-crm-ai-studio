@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   DropdownMenu,
@@ -79,42 +80,44 @@ export default function MultiSelect({
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            "flex items-center justify-between border rounded-md bg-white dark:bg-gray-800 text-sm px-3 h-9 w-full",
+            "flex items-center justify-between border rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-700 text-sm px-3 h-9 w-full text-left",
             className
           )}
         >
           <span className="truncate text-gray-700 dark:text-gray-200">
             {displayLabel || placeholder}
           </span>
-          <Icon name="chevronDown" className="h-4 w-4 ml-2 text-gray-500" />
+          <Icon name="chevronDown" className="h-4 w-4 ml-2 text-gray-500 flex-shrink-0" />
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-64">
-        <div className="p-3 space-y-2">
+      {/* w-auto allows it to size based on content, min-w ensures it's not too small, max-w prevents explosion */}
+      <DropdownMenuContent className="w-auto min-w-[12rem] max-w-[300px] p-0" align="start">
+        <div className="p-2 space-y-2">
 
           {/* Search */}
           <input
-            className="w-full border rounded-md px-2 py-1 text-sm bg-gray-50 dark:bg-gray-700"
+            className="w-full border rounded-md px-2 py-1 text-sm bg-gray-50 dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             placeholder="Search..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               setHighlight(0);
             }}
+            onClick={(e) => e.stopPropagation()} 
           />
 
           {/* Actions */}
-          <div className="flex justify-between text-xs">
+          <div className="flex justify-between text-xs px-1">
             <button
-              onClick={selectAll}
-              className="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+              onClick={(e) => { e.stopPropagation(); selectAll(); }}
+              className="px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
               Select all
             </button>
             <button
-              onClick={clearAll}
-              className="px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+              onClick={(e) => { e.stopPropagation(); clearAll(); }}
+              className="px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
             >
               Clear
             </button>
@@ -131,30 +134,30 @@ export default function MultiSelect({
               return (
                 <div
                   key={opt}
-                  onClick={() => toggle(opt)}
+                  onClick={(e) => { e.stopPropagation(); toggle(opt); }}
                   onMouseEnter={() => setHighlight(i)}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded cursor-pointer",
+                    "flex items-center gap-2 px-3 py-2 rounded-sm cursor-pointer text-sm",
                     checked
-                      ? "bg-green-100 dark:bg-green-800/40"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700",
-                    i === highlight && "ring-2 ring-green-400"
+                      ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300"
+                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-zinc-800",
+                    i === highlight && "bg-gray-100 dark:bg-zinc-800"
                   )}
                 >
                   <div
                     className={cn(
-                      "w-4 h-4 rounded-sm flex items-center justify-center border",
+                      "w-4 h-4 rounded-sm flex items-center justify-center border flex-shrink-0 transition-colors",
                       checked
-                        ? "bg-green-600 border-green-600"
-                        : "border-gray-300 dark:border-gray-600"
+                        ? "bg-green-600 border-green-600 text-white"
+                        : "border-gray-300 dark:border-zinc-600"
                     )}
                   >
                     {checked && (
-                      <Icon name="check" className="h-3 w-3 text-white" />
+                      <Icon name="check" className="h-3 w-3" />
                     )}
                   </div>
 
-                  <span className="text-sm text-gray-800 dark:text-gray-200">
+                  <span className="truncate">
                     {opt}
                   </span>
                 </div>
@@ -162,7 +165,7 @@ export default function MultiSelect({
             })}
 
             {filtered.length === 0 && (
-              <p className="text-gray-500 text-xs">No results</p>
+              <p className="text-gray-500 text-xs text-center py-2">No results</p>
             )}
           </div>
         </div>

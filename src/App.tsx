@@ -10,6 +10,7 @@ import { Toaster } from "./components/ui/Toaster";
 // Pages
 import DashboardPage from "./pages/overview/DashboardPage";
 import SalesPipelinePage from "./pages/sales/Leads/SalesPipelinePage";
+import PlaceholderPage from "./components/ui/PlaceholderPage";
 
 const AppWrapper: React.FC = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
@@ -29,21 +30,11 @@ const AppWrapper: React.FC = () => {
           <Route path="/dashboard" element={<DashboardPage />} />
 
           {/* Sales Pages */}
-          <Route path="/dashboard" element={<SalesPipelinePage />} />
-          
+            <Route path="/sales/pipeline" element={<SalesPipelinePage />} />
 
           {/* TEMP: REMOVE THIS LATER WHEN YOU ADD MORE MODULES */}
-          <Route
-            path="*"
-            element={
-              <div className="p-6">
-                <h2 className="text-lg font-semibold">Page Not Found</h2>
-                <p className="text-sm text-gray-500 mt-1">No route matched.</p>
-              </div>
-            }
-          />
+          <Route path="*" element={<PlaceholderPage title="404 - Not Found" />} />
         </Routes>
-
         <Toaster />
       </Layout>
     </HashRouter>

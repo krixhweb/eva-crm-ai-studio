@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
-import Dashboard from "./Dashboard";
+import Dashboard from "./LeadsDashboard";
 import Toolbar from "./Toolbar";
 import PipelineAndTable from "./PipelineAndTable";
 import { useToast } from "../../../hooks/use-toast";

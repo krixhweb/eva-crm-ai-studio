@@ -61,7 +61,7 @@ const renderLabel = ({ cx, cy, midAngle, outerRadius, percent, name }: any) => {
   );
 };
 
-const Dashboard: React.FC<Props> = ({ deals }) => {
+const LeadsDashboard: React.FC<Props> = ({ deals }) => {
   // Pipeline Value
   const pipelineData = useMemo(() => {
     const map: Record<string, number> = {};
@@ -214,4 +214,4 @@ const Dashboard: React.FC<Props> = ({ deals }) => {
   );
 };
 
-export default Dashboard;
+export default LeadsDashboard;
