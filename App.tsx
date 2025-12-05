@@ -7,6 +7,7 @@ import type { RootState } from './store/store';
 import Layout from './components/layout/Layout';
 import { GlassyToastProvider } from './components/ui/GlassyToastProvider';
 import PlaceholderPage from './components/ui/PlaceholderPage';
+import { applyTheme, injectThemeTransitions, persistTheme } from './lib/theme';
 
 // Dashboard
 import DashboardPage from './modules/dashboard/DashboardPage';
@@ -145,11 +146,12 @@ const AppWrapper: React.FC = () => {
   const isDarkMode = useSelector((state: RootState) => state.ui.isDarkMode);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
+    injectThemeTransitions();
+  }, []);
+
+  useEffect(() => {
+    applyTheme(isDarkMode);
+    persistTheme(isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   return (

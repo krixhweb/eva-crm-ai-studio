@@ -1,6 +1,7 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { initializeTheme } from '../lib/theme';
 
 export interface UiState {
   isSidebarOpen: boolean;
@@ -12,7 +13,7 @@ export interface UiState {
 const initialState: UiState = {
   isSidebarOpen: true,
   sidebarWidth: 260, // Default expanded width
-  isDarkMode: false,
+  isDarkMode: initializeTheme() === 'dark',
   breadcrumb: ['360° Overview', 'Dashboard'],
 };
 
