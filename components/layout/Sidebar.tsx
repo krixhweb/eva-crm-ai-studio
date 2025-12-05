@@ -34,7 +34,7 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     title: '360° Overview',
-    icon: 'analytics',
+    icon: 'home',
     defaultOpen: true,
     items: [
       { label: 'Dashboard', path: '/dashboard', icon: 'dashboard', breadcrumb: ['360° Overview', 'Dashboard'] },
